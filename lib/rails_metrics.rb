@@ -29,11 +29,6 @@ module RailsMetrics
   end
 end
 
-# TODO Move me to Rails
-ActiveSupport::Notifications.instrumenter.class_eval do
-  attr_reader :id
-end
-
 # Subscribe to all notifications
 ActiveSupport::Notifications.subscribe do |*args|
   RailsMetrics.store.new.store!(args) if RailsMetrics.valid_for_storing?(args[0].to_s, args[3])

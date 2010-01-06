@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require File.expand_path('../../config/application',  __FILE__)
+require 'rails/commands/dbconsole'
+Rails::DBConsole.start(Dummy::Application.instance)
