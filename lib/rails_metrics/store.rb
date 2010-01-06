@@ -1,23 +1,18 @@
 module RailsMetrics
-  # Include in your model to store metrics. For ActiveRecord, you need to set
-  # the payload as a serializable attribute:
+  # Include in your model to store metrics. For ActiveRecord, you need the
+  # following setup:
   #
-  #   class Metrics < ActiveRecord::Base
+  #   script/generate model Metric script/generate name:string duration:integer
+  #     instrumenter_id:string payload:text started_at:datetime created_at:datetime --skip-timestamps
+  #
+  # You can use any name you wish. Next, you need to include RailsMetrics::Store
+  # and set the payload as a serializable attribute:
+  #
+  #   class Metric < ActiveRecord::Base
   #     include RailsMetrics::Store
   #
   #     validates_presence_of :name, :transaction_id, :duration, :started_at
   #     serialize :payload
-  #   end
-  #
-  # You will also need the following migration:
-  #
-  #   create_table :metrics do |t|
-  #     t.string :name
-  #     t.string :transaction_id
-  #     t.integer :duration
-  #     t.text :payload
-  #     t.datetime :started_at
-  #     t.datetime :created_at
   #   end
   #
   module Store
@@ -26,11 +21,11 @@ module RailsMetrics
     end
 
     def store!(args)
-      self.name           = args[0].to_s
-      self.started_at     = args[1]
-      self.duration       = (args[2] - args[1]) * 1000
-      self.transaction_id = args[3]
-      self.payload        = RailsMetrics::PayloadParser.filter(name, args[4])
+      self.name            = args[0].to_s
+      self.started_at      = args[1]
+      self.duration        = (args[2] - args[1]) * 1000
+      self.instrumenter_id = args[3]
+      self.payload         = RailsMetrics::PayloadParser.filter(name, args[4])
 
       save_metrics!
     end

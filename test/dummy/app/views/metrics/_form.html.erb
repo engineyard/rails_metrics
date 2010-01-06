@@ -1,0 +1,35 @@
+<% form_for(@metric) do |f| %>
+  <%= f.error_messages %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :duration %><br />
+    <%= f.text_field :duration %>
+  </div>
+  <div class="field">
+    <%= f.label :instrumenter_id %><br />
+    <%= f.text_field :instrumenter_id %>
+  </div>
+  <div class="field">
+    <%= f.label :payload %><br />
+    <%= f.text_area :payload %>
+  </div>
+  <div class="field">
+    <%= f.label :started_at %><br />
+    <%= f.datetime_select :started_at %>
+  </div>
+  <div class="field">
+    <%= f.label :created_at %><br />
+    <%= f.datetime_select :created_at %>
+  </div>
+  <div class="actions">
+    <% if @metric.new_record? %>
+      <%= f.submit 'Create' %>
+    <% else %>
+      <%= f.submit 'Update' %>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,33 @@
+<p>
+  <b>Name:</b>
+  <%= @metric.name %>
+</p>
+
+<p>
+  <b>Duration:</b>
+  <%= @metric.duration %>
+</p>
+
+<p>
+  <b>Instrumenter:</b>
+  <%= @metric.instrumenter_id %>
+</p>
+
+<p>
+  <b>Payload:</b>
+  <%= @metric.payload %>
+</p>
+
+<p>
+  <b>Started at:</b>
+  <%= @metric.started_at %>
+</p>
+
+<p>
+  <b>Created at:</b>
+  <%= @metric.created_at %>
+</p>
+
+
+<%= link_to 'Edit', edit_metric_path(@metric) %> |
+<%= link_to 'Back', metrics_path %>

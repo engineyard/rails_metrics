@@ -11,3 +11,6 @@ require 'rubygems'
 #   5) rake test
 #
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
+
+ActiveRecord::Migration.verbose = false
+ActiveRecord::Migrator.migrate(Rails.root.join("db/migrate/"))
