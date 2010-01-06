@@ -10,5 +10,4 @@ require 'rubygems'
 #   4) Ensure rails checkout is in the same directory as rails_metrics' one
 #   5) rake test
 #
-require File.expand_path("../../rails/vendor/gems/#{Gem.ruby_engine}/#{Gem::ConfigMap[:ruby_version]}/environment.rb", File.dirname(__FILE__))
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
