@@ -12,7 +12,7 @@ module RailsMetrics
   #   RailsMetrics.ignored_patterns << /^action_controller/
   #
   mattr_accessor :ignored_patterns
-  @@ignore_patterns = []
+  @@ignored_patterns = []
 
   # A notification is valid for storing if two conditions are met:
   #
@@ -24,7 +24,7 @@ module RailsMetrics
   #
   # TODO Ignore notifications from /metrics
   def self.valid_for_storing?(name, instrumenter_id)
-    ActiveSupport::Notifications.instrumenter.id != instrumenter_id &&
+    ActiveSupport::Notifications.notifier.instrumenter_id != instrumenter_id &&
       !self.ignored_patterns.find { |regexp| name =~ regexp }
   end
 end
