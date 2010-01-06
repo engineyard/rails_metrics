@@ -9,10 +9,10 @@ module RailsMetrics
   # Keeps a list of patterns to not be saved in the store. You can add how many
   # you wish:
   #
-  #   RailsMetrics.ignored_patterns << /^action_controller/
+  #   RailsMetrics.ignore_patterns << /^action_controller/
   #
-  mattr_accessor :ignored_patterns
-  @@ignored_patterns = []
+  mattr_accessor :ignore_patterns
+  @@ignore_patterns = []
 
   # A notification is valid for storing if two conditions are met:
   #
@@ -25,7 +25,7 @@ module RailsMetrics
   # TODO Ignore notifications from /metrics
   def self.valid_for_storing?(name, instrumenter_id)
     ActiveSupport::Notifications.notifier.instrumenter_id != instrumenter_id &&
-      !self.ignored_patterns.find { |regexp| name =~ regexp }
+      !self.ignore_patterns.find { |regexp| name =~ regexp }
   end
 end
 
