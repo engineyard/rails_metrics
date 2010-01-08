@@ -38,6 +38,16 @@ module RailsMetrics
     ActiveSupport::Notifications.instrument("rails_metrics.remove_from_blacklist")
   end
 
+  # Mute the given method in the specified object.
+  def self.mute_method!(object, method)
+    object.class_eval <<-METHOD, __FILE__, __LINE__ + 1
+      def #{method}_with_mute!(*args, &block)
+        RailsMetrics.mute!{ #{method}_without_mute!(*args, &block) }
+      end
+      alias_method_chain :#{method}, :mute!
+    METHOD
+  end
+
   # Contains the actual storing logic, compatible with RailsMetrics::Store API.
   # Overwrite at will.
   def self.store!(args)

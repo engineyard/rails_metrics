@@ -1,4 +1,3 @@
-require 'rubygems'
 require File.expand_path("../../../../rails/vendor/gems/environment.rb", File.dirname(__FILE__))
 
 require 'rails/all'

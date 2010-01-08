@@ -20,3 +20,9 @@ production:
   database: db/production.sqlite3
   pool: 5
   timeout: 5000
+
+metrics:
+  adapter: sqlite3
+  database: db/metrics.sqlite3
+  pool: 5
+  timeout: 5000

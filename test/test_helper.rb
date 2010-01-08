@@ -6,9 +6,10 @@ require 'rubygems'
 #
 #   1) Install latest bundler with "gem install bundler"
 #   2) Clone rails in git://github.com/rails/rails
-#   3) Bundle rails repository requirements with "gem bundle"
-#   4) Ensure rails checkout is in the same directory as rails_metrics' one
-#   5) rake test
+#   3) Ensure rails checkout is in the same directory as rails_metrics' one
+#   4) Bundle rails repository requirements with "gem bundle"
+#   5) Move to test/dummy and run "rake db:migrate RAILS_ENV=test"
+#   6) rake test
 #
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
 require 'rails/test_help'
@@ -17,9 +18,6 @@ require 'webrat'
 ActionMailer::Base.delivery_method = :test
 ActionMailer::Base.perform_deliveries = true
 ActionMailer::Base.default_url_options[:host] = 'test.com'
-
-ActiveRecord::Migration.verbose = false
-ActiveRecord::Migrator.migrate(Rails.root.join("db/migrate/"))
 
 Webrat.configure do |config|
   config.mode = :rails

@@ -1,4 +1,8 @@
 class CreateMetrics < ActiveRecord::Migration
+  def self.connection
+    Metric.connection
+  end
+
   def self.up
     create_table :metrics do |t|
       t.string :name
