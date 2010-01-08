@@ -57,4 +57,23 @@ class RailsMetricsTest < ActiveSupport::TestCase
     wait
     assert_equal "rails_metrics.something", MockStore.instances.last.args[0]
   end
+
+  test "mutes a given method for a given class" do
+    notifier = Class.new do
+      def notify
+        ActiveSupport::Notifications.instrument("rails_metrics.something")
+      end
+    end
+
+    notifier.new.notify
+    wait
+    assert_equal "rails_metrics.something", MockStore.instances.last.args[0]
+
+    MockStore.instances.clear
+    RailsMetrics.mute_method!(notifier, :notify)
+
+    notifier.new.notify
+    wait
+    assert MockStore.instances.empty?
+  end
 end
