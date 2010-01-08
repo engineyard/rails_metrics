@@ -51,7 +51,7 @@ module RailsMetrics
     end
 
     def self.delete(*names)
-      names.each { |name| @parsers.delete(name.to_s) }
+      names.each { |name| @@parsers.delete(name.to_s) }
     end
 
     def self.filter(name, payload)

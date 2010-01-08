@@ -38,6 +38,12 @@ module RailsMetrics
     ActiveSupport::Notifications.instrument("rails_metrics.remove_from_blacklist")
   end
 
+  # Contains the actual storing logic, compatible with RailsMetrics::Store API.
+  # Overwrite at will.
+  def self.store!(args)
+    self.store.new.store!(args)
+  end
+
   # Keeps a blacklist of instrumenters ids.
   def self.blacklist
     Thread.current[:rails_metrics_instrumenters_blacklist] ||= []
@@ -50,8 +56,8 @@ ActiveSupport::Notifications.subscribe do |*args|
   if args[0] == "rails_metrics.add_to_blacklist"
     RailsMetrics.blacklist << instrumenter_id
   elsif args[0] == "rails_metrics.remove_from_blacklist"
-    RailsMetrics.blacklist.delete(instrumenter_id)
+    RailsMetrics.blacklist.pop
   elsif RailsMetrics.valid_for_storing?(name, instrumenter_id)
-    RailsMetrics.store.new.store!(args)
+    RailsMetrics.store!(args)
   end
 end

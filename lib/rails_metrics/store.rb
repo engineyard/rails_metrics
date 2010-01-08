@@ -28,6 +28,7 @@ module RailsMetrics
       self.payload         = RailsMetrics::PayloadParser.filter(name, args[4])
 
       save_metrics!
+      self
     end
 
     def save_metrics!
