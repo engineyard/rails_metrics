@@ -1,6 +1,6 @@
 Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
-# Add a middleware to exempt /metric notifications
+# TODO Add a middleware to exempt /metrics notifications
 
 module RailsMetrics
   # Keeps a link to the class which stores the metric. This is set automatically

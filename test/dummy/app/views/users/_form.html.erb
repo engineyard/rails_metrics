@@ -1,0 +1,15 @@
+<% form_for(@user) do |f| %>
+  <%= f.error_messages %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="actions">
+    <% if @user.new_record? %>
+      <%= f.submit 'Create' %>
+    <% else %>
+      <%= f.submit 'Update' %>
+    <% end %>
+  </div>
+<% end %>
