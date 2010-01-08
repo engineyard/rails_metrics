@@ -27,6 +27,9 @@ module RailsMetrics
   #     { :method => payload[:controller].request.method }
   #   end
   #
+  # ATTENTION: if you need to modify the payload or any of its values, be sure to
+  # .dup if first.
+  #
   # RailsMetrics all come with default parsers (defined below), but if you want to gather
   # some info for other libraries (for example, paperclip) you need to define the parser
   # on your own. You can remove any parser whenever you want:
@@ -70,14 +73,17 @@ module RailsMetrics
         "action_controller.exist_fragment?", "action_controller.expire_fragment",
         "action_controller.expire_page", "action_controller.cache_page"
 
-    add "action_controller.render_template" do |payload|
-      payload.each_value do |value|
-        value.gsub!(Rails.root.to_s, "RAILS_ROOT")
+    add "action_view.render_template", "action_view.render_layout" do |payload|
+      returning({})do |new_payload|
+        payload.each do |key, value|
+          new_payload[key] = value.gsub(Rails.root.to_s, "RAILS_ROOT")
+        end
       end
     end
 
+    # TODO Check what is better to output here
     add "action_controller.process_action" do |payload|
-      controller = payload.delete(:controller)
+      controller = payload[:controller]
 
       {
         :controller => controller.controller_name,
