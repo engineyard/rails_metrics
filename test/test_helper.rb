@@ -24,7 +24,11 @@ Webrat.configure do |config|
   config.open_error_files = false
 end
 
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
+
 class ActiveSupport::TestCase
+  setup :wait
+
   # Execute the block setting the given values and restoring old values after
   # the block is executed.
   def swap(object, new_values)

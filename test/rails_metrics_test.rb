@@ -1,19 +1,9 @@
 require File.expand_path('test_helper', File.dirname(__FILE__))
 
 class RailsMetricsTest < ActiveSupport::TestCase
-  class MockStore
-    attr_accessor :args
-
-    def self.instances
-      @instances ||= []
-    end
-
-    def initialize
-      self.class.instances << self
-    end
-
+  class MockStore < ::MockStore
     def store!(args)
-      @args = args
+      super
 
       if args[0] == "rails_metrics.kicker"
         args << :kicked!
