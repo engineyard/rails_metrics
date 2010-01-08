@@ -76,6 +76,7 @@ module RailsMetrics
     add "action_view.render_template", "action_view.render_layout" do |payload|
       returning({})do |new_payload|
         payload.each do |key, value|
+          next unless value
           new_payload[key] = value.gsub(Rails.root.to_s, "RAILS_ROOT")
         end
       end
@@ -97,9 +98,11 @@ module RailsMetrics
       mail = payload[:mail]
 
       {
-        :from    => mail.from,
-        :to      => mail.to,
-        :subject => mail.subject
+        :from       => mail.from,
+        :recipients => mail.recipients,
+        :subject    => mail.subject,
+        :mailer     => mail.mailer_name,
+        :template   => mail.template
       }
     end
 

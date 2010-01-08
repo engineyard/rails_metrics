@@ -8,9 +8,11 @@ class AllMetricsTest < ActionController::IntegrationTest
 
   test "queries are added to RailsMetrics" do
     User.create!(:name => "User")
-    wait! # For some reason, we need to wait the publishing propragate
+    wait!
 
-    metric = Metric.last
+    assert_equal 1, Metric.count
+    metric = Metric.first
+
     assert_equal "active_record.sql", metric.name
     assert (metric.duration >= 0)
     assert_kind_of Time, metric.started_at
@@ -19,7 +21,7 @@ class AllMetricsTest < ActionController::IntegrationTest
 
   test "processed actions are added to RailsMetrics" do
     get "/users"
-    wait
+    wait!
 
     assert_equal 4, Metric.count
     sql, template, layout, action = Metric.all
@@ -44,5 +46,29 @@ class AllMetricsTest < ActionController::IntegrationTest
 
     assert_equal Hash[:formats => [Mime::HTML], :controller => "users", :method => :get,
       :action => "index"], action.payload
+  end
+
+  test "notifications deliveries are added to RailsMetrics" do
+    Notification.deliver_welcome
+    wait!
+
+    assert_equal 2, Metric.count
+    template, mail = Metric.all
+
+    assert_equal "action_view.render_template", template.name
+    assert_equal "action_mailer.deliver", mail.name
+
+    assert (template.duration >= 0)
+    assert (mail.duration >= 0)
+
+    assert_kind_of Time, template.started_at
+    assert_kind_of Time, mail.started_at
+
+    assert_equal Hash[:identifier => "RAILS_ROOT/app/views/notification/welcome.erb"],
+      template.payload
+
+    assert_equal Hash[:subject => "Welcome", :from => "sender@rails-metrics-app.com",
+       :template => "welcome", :recipients => "destination@rails-metrics-app.com",
+       :mailer => "notification"], mail.payload
   end
 end
