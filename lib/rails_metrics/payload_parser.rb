@@ -58,7 +58,7 @@ module RailsMetrics
       parser = @@parsers[name]
       case parser
       when Array
-        payload.send(*args)
+        payload.send(*parser)
       when Proc
         parser.call(payload)
       when :all
