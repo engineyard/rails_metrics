@@ -13,22 +13,14 @@ require 'rubygems'
 #
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
 require 'rails/test_help'
-require 'webrat'
 
 ActionMailer::Base.delivery_method = :test
 ActionMailer::Base.perform_deliveries = true
 ActionMailer::Base.default_url_options[:host] = 'test.com'
 
-Webrat.configure do |config|
-  config.mode = :rails
-  config.open_error_files = false
-end
-
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 class ActiveSupport::TestCase
-  setup :wait
-
   # Execute the block setting the given values and restoring old values after
   # the block is executed.
   def swap(object, new_values)
@@ -46,6 +38,13 @@ class ActiveSupport::TestCase
 
   def wait
     ActiveSupport::Notifications.notifier.wait
+  end
+
+  # Sometimes we need to wait, until ActiveSupport::Notifications releases
+  # that something was pushed to the Queue.
+  def wait!
+    sleep(0.1)
+    wait
   end
 
   def instrument(*args, &block)

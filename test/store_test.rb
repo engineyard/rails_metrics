@@ -13,6 +13,7 @@ class StoreTest < ActiveSupport::TestCase
 
   setup do
     RailsMetrics::PayloadParser.add "rails_metrics.example"
+    wait
   end
 
   teardown do
