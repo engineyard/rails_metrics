@@ -1,5 +1,5 @@
 # Configure Rails Envinronment
-ENV["RAILS_ENV"] = RAILS_ENV = "test"
+ENV["RAILS_ENV"] = "test"
 require 'rubygems'
 
 # To test RailsMetrics, you need to:
@@ -11,6 +11,7 @@ require 'rubygems'
 #   5) rake test
 #
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
+require 'rails/test_help'
 require 'webrat'
 
 ActionMailer::Base.delivery_method = :test

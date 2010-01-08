@@ -1,5 +1,7 @@
 Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
+# Add a middleware to exempt /metric notifications
+
 module RailsMetrics
   # Keeps a link to the class which stores the metric. This is set automatically
   # when a module inherits from RailsMetrics::Store.
@@ -22,14 +24,34 @@ module RailsMetrics
   #
   #   2) If the notification name does not match any ignored pattern;
   #
-  # TODO Ignore notifications from /metrics
   def self.valid_for_storing?(name, instrumenter_id)
-    ActiveSupport::Notifications.notifier.instrumenter_id != instrumenter_id &&
+    ActiveSupport::Notifications.instrumenter.id != instrumenter_id &&
+      !RailsMetrics.blacklist.include?(instrumenter_id) &&
       !self.ignore_patterns.find { |regexp| name =~ regexp }
+  end
+
+  # Mute RailsMetrics subscriber during the block.
+  def self.mute!
+    ActiveSupport::Notifications.instrument("rails_metrics.add_to_blacklist")
+    yield
+  ensure
+    ActiveSupport::Notifications.instrument("rails_metrics.remove_from_blacklist")
+  end
+
+  # Keeps a blacklist of instrumenters ids.
+  def self.blacklist
+    Thread.current[:rails_metrics_instrumenters_blacklist] ||= []
   end
 end
 
-# Subscribe to all notifications
 ActiveSupport::Notifications.subscribe do |*args|
-  RailsMetrics.store.new.store!(args) if RailsMetrics.valid_for_storing?(args[0].to_s, args[3])
+  name, instrumenter_id = args[0].to_s, args[3]
+
+  if args[0] == "rails_metrics.add_to_blacklist"
+    RailsMetrics.blacklist << instrumenter_id
+  elsif args[0] == "rails_metrics.remove_from_blacklist"
+    RailsMetrics.blacklist.delete(instrumenter_id)
+  elsif RailsMetrics.valid_for_storing?(name, instrumenter_id)
+    RailsMetrics.store.new.store!(args)
+  end
 end
