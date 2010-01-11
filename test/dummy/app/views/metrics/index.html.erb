@@ -10,7 +10,6 @@
     <th>Created at</th>
     <th></th>
     <th></th>
-    <th></th>
   </tr>
 
 <% @metrics.each do |metric| %>
@@ -18,16 +17,11 @@
     <td><%= metric.name %></td>
     <td><%= metric.duration %></td>
     <td><%= metric.instrumenter_id %></td>
-    <td><%= metric.payload %></td>
+    <td><%= metric.payload.inspect %></td>
     <td><%= metric.started_at %></td>
     <td><%= metric.created_at %></td>
     <td><%= link_to 'Show', metric %></td>
-    <td><%= link_to 'Edit', edit_metric_path(metric) %></td>
     <td><%= link_to 'Destroy', metric, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>
-
-<br />
-
-<%= link_to 'New metric', new_metric_path %>

@@ -97,7 +97,7 @@ module RailsMetrics
         :controller => controller.controller_name,
         :action     => payload[:action],
         :method     => controller.request.method,
-        :formats    => controller.request.formats
+        :formats    => controller.request.formats.map(&:to_s)
       }
     end
 
