@@ -73,9 +73,9 @@ Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
 ActiveSupport::Notifications.subscribe do |*args|
   name, instrumenter_id = args[0].to_s, args[3]
 
-  if args[0] == "rails_metrics.add_to_blacklist"
+  if name == "rails_metrics.add_to_blacklist"
     RailsMetrics.blacklist << instrumenter_id
-  elsif args[0] == "rails_metrics.remove_from_blacklist"
+  elsif name == "rails_metrics.remove_from_blacklist"
     RailsMetrics.blacklist.pop
   elsif RailsMetrics.valid_for_storing?(name, instrumenter_id)
     RailsMetrics.store!(args)

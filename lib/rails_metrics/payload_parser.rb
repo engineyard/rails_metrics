@@ -69,7 +69,9 @@ module RailsMetrics
       end
     end
 
-    add "active_record.sql", "action_controller.write_fragment", "action_controller.read_fragment",
+    add "active_record.sql", :slice => [:name, :sql]
+
+    add "action_controller.write_fragment", "action_controller.read_fragment",
         "action_controller.exist_fragment?", "action_controller.expire_fragment",
         "action_controller.expire_page", "action_controller.cache_page"
 
