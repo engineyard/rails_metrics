@@ -48,7 +48,7 @@ class AllMetricsTest < ActionController::IntegrationTest
       :action => "index"], action.payload
   end
 
-  test "notifications deliveries are added to RailsMetrics" do
+  test "mailer deliveries are added to RailsMetrics" do
     Notification.deliver_welcome
     wait!
 
@@ -70,5 +70,31 @@ class AllMetricsTest < ActionController::IntegrationTest
     assert_equal Hash[:subject => "Welcome", :from => "sender@rails-metrics-app.com",
        :template => "welcome", :recipients => "destination@rails-metrics-app.com",
        :mailer => "notification"], mail.payload
+  end
+
+  test "fragment cache are added to RailsMetrics" do
+    get "users/new"
+    wait!
+
+    assert_equal 6, Metric.count
+    partial, exist, write, = Metric.all
+
+    assert_equal "action_view.render_partial", partial.name
+    assert_equal "action_controller.exist_fragment?", exist.name
+    assert_equal "action_controller.write_fragment", write.name
+
+    assert (partial.duration >= 0)
+    assert (exist.duration >= 0)
+    assert (write.duration >= 0)
+
+    assert_kind_of Time, partial.started_at
+    assert_kind_of Time, exist.started_at
+    assert_kind_of Time, write.started_at
+
+    assert_equal Hash[:identifier => "RAILS_ROOT/app/views/users/_form.html.erb"],
+      partial.payload
+
+    assert_equal Hash[:key => "views/foo.bar"], exist.payload
+    assert_equal Hash[:key => "views/foo.bar"], write.payload
   end
 end

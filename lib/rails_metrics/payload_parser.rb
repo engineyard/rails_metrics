@@ -73,11 +73,18 @@ module RailsMetrics
         "action_controller.exist_fragment?", "action_controller.expire_fragment",
         "action_controller.expire_page", "action_controller.cache_page"
 
-    add "action_view.render_template", "action_view.render_layout" do |payload|
-      returning({})do |new_payload|
+    add "action_view.render_template", "action_view.render_layout",
+        "action_view.render_partial", "action_view.render_collection" do |payload|
+      returning Hash.new do |new_payload|
         payload.each do |key, value|
-          next unless value
-          new_payload[key] = value.gsub(Rails.root.to_s, "RAILS_ROOT")
+          case value
+          when String
+            new_payload[key] = value.gsub(Rails.root.to_s, "RAILS_ROOT")
+          when NilClass
+            # Ignore it
+          else
+            new_payload[key] = value
+          end
         end
       end
     end
@@ -108,5 +115,11 @@ module RailsMetrics
 
     # TODO Render with exception
     # add "action_dispatch.show_exception"
+
+    # TODO redirect_to
+    # add "action_controller.redirect_to"
+
+    # TODO send_data
+    # add "action_controller.send_data"
   end
 end
