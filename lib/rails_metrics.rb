@@ -1,8 +1,14 @@
 Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
-# TODO Add a middleware to exempt /metrics notifications
+# TODO Handle multiple environments
+# TODO Allow metrics path to be configurable
 
 module RailsMetrics
+  autoload :MuteMiddleware, 'rails_metrics/mute_middleware'
+  autoload :PayloadParser,  'rails_metrics/payload_parser'
+  autoload :Store,          'rails_metrics/store'
+  autoload :VERSION,        'rails_metrics/version'
+
   # Keeps a link to the class which stores the metric. This is set automatically
   # when a module inherits from RailsMetrics::Store.
   mattr_accessor :store
@@ -56,10 +62,14 @@ module RailsMetrics
 
   # Keeps a blacklist of instrumenters ids.
   def self.blacklist
-    Thread.current[:rails_metrics_instrumenters_blacklist] ||= []
+    Thread.current[:rails_metrics_blacklist] ||= []
   end
 end
 
+# Configure middleware
+Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
+
+# Configure subscriptions
 ActiveSupport::Notifications.subscribe do |*args|
   name, instrumenter_id = args[0].to_s, args[3]
 
