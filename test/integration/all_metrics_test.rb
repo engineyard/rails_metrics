@@ -44,7 +44,7 @@ class AllMetricsTest < ActionController::IntegrationTest
     assert_equal Hash[:identifier => "RAILS_ROOT/app/views/layouts/users.html.erb"],
       layout.payload
 
-    assert_equal Hash[:formats => [Mime::HTML], :controller => "users", :method => :get,
+    assert_equal Hash[:formats => %w(text/html), :controller => "users", :method => :get,
       :action => "index"], action.payload
   end
 

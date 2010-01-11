@@ -9,10 +9,9 @@ module RailsMetrics
   autoload :Store,          'rails_metrics/store'
   autoload :VERSION,        'rails_metrics/version'
 
-  # Keeps a link to the class which stores the metric. This is set automatically
-  # when a module inherits from RailsMetrics::Store.
-  mattr_accessor :store
-  @@metrics_store = nil
+  def self.set_store(&block)
+    metaclass.send :define_method, :store, &block
+  end
 
   # Keeps a list of patterns to not be saved in the store. You can add how many
   # you wish:
@@ -31,9 +30,8 @@ module RailsMetrics
   #   2) If the notification name does not match any ignored pattern;
   #
   def self.valid_for_storing?(name, instrumenter_id)
-    ActiveSupport::Notifications.instrumenter.id != instrumenter_id &&
-      !RailsMetrics.blacklist.include?(instrumenter_id) &&
-      !self.ignore_patterns.find { |regexp| name =~ regexp }
+    !RailsMetrics.blacklist.include?(instrumenter_id) &&
+    !self.ignore_patterns.find { |regexp| name =~ regexp }
   end
 
   # Mute RailsMetrics subscriber during the block.
@@ -69,11 +67,19 @@ end
 # Configure middleware
 Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
 
+# Move me somewhere
+RailsMetrics.mute_method! ActiveRecord::Migrator, :migrate
+
 # Configure subscriptions
 ActiveSupport::Notifications.subscribe do |*args|
   name, instrumenter_id = args[0].to_s, args[3]
 
-  if name == "rails_metrics.add_to_blacklist"
+  # TODO Abstract this
+  if name == "active_record.sql" && args[4][:sql] !~ /^(SELECT|INSERT|UPDATE|DELETE)/
+    # Ignore
+  elsif name == "active_record.sql" &&
+    Metric.connection_pool.connections.include?(args[4][:connection])
+  elsif name == "rails_metrics.add_to_blacklist"
     RailsMetrics.blacklist << instrumenter_id
   elsif name == "rails_metrics.remove_from_blacklist"
     RailsMetrics.blacklist.pop

@@ -16,10 +16,6 @@ module RailsMetrics
   #   end
   #
   module Store
-    def self.included(base)
-      RailsMetrics.store ||= base
-    end
-
     def store!(args)
       self.name            = args[0].to_s
       self.started_at      = args[1]

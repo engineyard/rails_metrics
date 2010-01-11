@@ -8,7 +8,7 @@ require 'rubygems'
 #   2) Clone rails in git://github.com/rails/rails
 #   3) Ensure rails checkout is in the same directory as rails_metrics' one
 #   4) Bundle rails repository requirements with "gem bundle"
-#   5) Move to test/dummy and run "rake db:migrate RAILS_ENV=test"
+#   5) Go to test/dummy directory and run "rake db:create:all & rake db:migrate"
 #   6) rake test
 #
 require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
@@ -21,6 +21,10 @@ ActionMailer::Base.default_url_options[:host] = 'test.com'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 class ActiveSupport::TestCase
+  setup do
+    RailsMetrics.set_store { Metric }
+  end
+
   # Execute the block setting the given values and restoring old values after
   # the block is executed.
   def swap(object, new_values)

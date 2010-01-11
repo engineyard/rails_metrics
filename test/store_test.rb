@@ -20,14 +20,6 @@ class StoreTest < ActiveSupport::TestCase
     RailsMetrics::PayloadParser.delete "rails_metrics.example"
   end
 
-  test "sets the RailsMetrics.store when included" do
-    swap RailsMetrics, :store => nil do
-      klass = Class.new
-      klass.send :include, RailsMetrics::Store
-      assert_equal klass, RailsMetrics.store
-    end
-  end
-
   test "sets the name" do
     assert_equal "rails_metrics.example", store!.name
   end
@@ -61,10 +53,9 @@ class StoreTest < ActiveSupport::TestCase
   end
 
   test "does not kick RailsMetrics" do
-    swap RailsMetrics, :store => MockStore do
-      Metric.all
-      wait
-      assert MockStore.instances.empty?
-    end
+    RailsMetrics.set_store { MockStore }
+    Metric.all
+    wait
+    assert MockStore.instances.empty?
   end
 end

@@ -13,12 +13,8 @@ class RailsMetricsTest < ActiveSupport::TestCase
   end
 
   setup do
-    @_previous_store, RailsMetrics.store = RailsMetrics.store, MockStore
+    RailsMetrics.set_store { MockStore }
     MockStore.instances.clear
-  end
-
-  teardown do
-    RailsMetrics.store = @_previous_store
   end
 
   test "send instrumentation event to the specified store" do
