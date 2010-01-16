@@ -3,7 +3,6 @@ require 'test_helper'
 class AllMetricsTest < ActionController::IntegrationTest
   setup do
     Metric.delete_all
-    wait
   end
 
   test "queries are added to RailsMetrics" do

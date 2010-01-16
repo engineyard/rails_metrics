@@ -69,14 +69,21 @@ module RailsMetrics
       end
     end
 
-    add "active_record.sql", :slice => [:name, :sql]
+    # ActiveRecord
+    add "active_record.sql"
 
+    # ActionController - cache
     add "action_controller.write_fragment", "action_controller.read_fragment",
         "action_controller.exist_fragment?", "action_controller.expire_fragment",
-        "action_controller.expire_page", "action_controller.cache_page"
+        "action_controller.expire_page", "action_controller.write_page"
 
-    add "action_view.render_template", "action_view.render_layout",
-        "action_view.render_partial", "action_view.render_collection" do |payload|
+    # ActionController - process action
+    add "action_controller.process_action", "action_controller.redirect_to",
+        "action_controller.send_data", "action_controller.send_file"
+
+    # ActionView
+    add "action_view.render_template", "action_view.render_partial",
+        "action_view.render_collection" do |payload|
       returning Hash.new do |new_payload|
         payload.each do |key, value|
           case value
@@ -91,37 +98,13 @@ module RailsMetrics
       end
     end
 
-    # TODO Check what is better to output here
-    add "action_controller.process_action" do |payload|
-      controller = payload[:controller]
+    # ActionMailer
+    add "action_mailer.deliver", "action_mailer.receive", :except => :mail
 
-      {
-        :controller => controller.controller_name,
-        :action     => payload[:action],
-        :method     => controller.request.method,
-        :formats    => controller.request.formats.map(&:to_s)
-      }
-    end
-
-    add "action_mailer.deliver" do |payload|
-      mail = payload[:mail]
-
-      {
-        :from       => mail.from,
-        :recipients => mail.recipients,
-        :subject    => mail.subject,
-        :mailer     => mail.mailer_name,
-        :template   => mail.template
-      }
-    end
+    # ActiveResource
+    add "active_resource.request"
 
     # TODO Render with exception
     # add "action_dispatch.show_exception"
-
-    # TODO redirect_to
-    # add "action_controller.redirect_to"
-
-    # TODO send_data
-    # add "action_controller.send_data"
   end
 end

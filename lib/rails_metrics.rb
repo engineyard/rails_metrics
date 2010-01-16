@@ -1,6 +1,5 @@
 Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
-# TODO Handle multiple environments
 # TODO Allow metrics path to be configurable
 
 module RailsMetrics
@@ -9,17 +8,44 @@ module RailsMetrics
   autoload :Store,          'rails_metrics/store'
   autoload :VERSION,        'rails_metrics/version'
 
+  module ORM
+    autoload :ActiveRecord, 'rails_metrics/orm/active_record'
+  end
+
+  mattr_accessor :ignore_patterns
+  @@ignore_patterns = []
+
+  # Set which store to use in RailsMetrics.
+  #
+  #   RailsMetrics.set_store { Metric }
+  #
   def self.set_store(&block)
     metaclass.send :define_method, :store, &block
   end
 
-  # Keeps a list of patterns to not be saved in the store. You can add how many
-  # you wish:
+  # Allow you to specify a condition to ignore a notification based
+  # on its name and/or payload. For example, if you want to ignore
+  # all notifications with empty payload, one can do:
   #
-  #   RailsMetrics.ignore_patterns << /^action_controller/
+  #   RailsMetrics.ignore :with_empty_payload do |name, payload|
+  #     payload.empty?
+  #   end
   #
-  mattr_accessor :ignore_patterns
-  @@ignore_patterns = []
+  # However, if you want to ignore something based solely on its
+  # name, you can use ignore_patterns instead:
+  #
+  #   RailsMetrics.ignore_patterns << /^some_noise_plugin/
+  #
+  def self.ignore(name, &block)
+    raise ArgumentError, "ignore expects a block" unless block_given?
+    ignore_lambdas[name] = block
+  end
+
+  # Stroes the blocks given to ignore with their respective identifier
+  # in a hash.
+  def self.ignore_lambdas #:nodoc:
+    @@ignore_lambdas ||= {}
+  end
 
   # A notification is valid for storing if two conditions are met:
   #
@@ -29,9 +55,10 @@ module RailsMetrics
   #
   #   2) If the notification name does not match any ignored pattern;
   #
-  def self.valid_for_storing?(name, instrumenter_id)
-    !RailsMetrics.blacklist.include?(instrumenter_id) &&
-    !self.ignore_patterns.find { |regexp| name =~ regexp }
+  def self.valid_for_storing?(name, payload, instrumenter_id) #:nodoc:
+    !(RailsMetrics.blacklist.include?(instrumenter_id) ||
+    self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } ||
+    self.ignore_lambdas.values.any? { |b| b.call(name, payload, instrumenter_id) })
   end
 
   # Mute RailsMetrics subscriber during the block.
@@ -42,7 +69,10 @@ module RailsMetrics
     ActiveSupport::Notifications.instrument("rails_metrics.remove_from_blacklist")
   end
 
-  # Mute the given method in the specified object.
+  # Mute a given method in a specified object.
+  #
+  #   RailsMetric.mute!(ActiveRecord::Base.connection, :log)
+  #
   def self.mute_method!(object, method)
     object.class_eval <<-METHOD, __FILE__, __LINE__ + 1
       def #{method}_with_mute!(*args, &block)
@@ -52,8 +82,7 @@ module RailsMetrics
     METHOD
   end
 
-  # Contains the actual storing logic, compatible with RailsMetrics::Store API.
-  # Overwrite at will.
+  # Instantiate the store and call store!
   def self.store!(args)
     self.store.new.store!(args)
   end
@@ -64,26 +93,19 @@ module RailsMetrics
   end
 end
 
-# Configure middleware
 Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
 
-# Move me somewhere
-RailsMetrics.mute_method! ActiveRecord::Migrator, :migrate
+# Ignore callback because it's a Rails internal hook
+RailsMetrics.ignore_patterns << "action_dispatch.callback"
 
-# Configure subscriptions
 ActiveSupport::Notifications.subscribe do |*args|
-  name, instrumenter_id = args[0].to_s, args[3]
+  name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
 
-  # TODO Abstract this
-  if name == "active_record.sql" && args[4][:sql] !~ /^(SELECT|INSERT|UPDATE|DELETE)/
-    # Ignore
-  elsif name == "active_record.sql" &&
-    Metric.connection_pool.connections.include?(args[4][:connection])
-  elsif name == "rails_metrics.add_to_blacklist"
+  if name == "rails_metrics.add_to_blacklist"
     RailsMetrics.blacklist << instrumenter_id
   elsif name == "rails_metrics.remove_from_blacklist"
     RailsMetrics.blacklist.pop
-  elsif RailsMetrics.valid_for_storing?(name, instrumenter_id)
+  elsif RailsMetrics.valid_for_storing?(name, payload, instrumenter_id)
     RailsMetrics.store!(args)
   end
 end

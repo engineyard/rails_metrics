@@ -51,11 +51,4 @@ class StoreTest < ActiveSupport::TestCase
       store!([nil, Time.now, Time.now])
     end
   end
-
-  test "does not kick RailsMetrics" do
-    RailsMetrics.set_store { MockStore }
-    Metric.all
-    wait
-    assert MockStore.instances.empty?
-  end
 end

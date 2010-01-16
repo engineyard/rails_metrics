@@ -1,19 +1,16 @@
 module RailsMetrics
-  # Include in your model to store metrics. For ActiveRecord, you need the
-  # following setup:
+  # This module contains the default API for storing notifications.
+  # Imagine that you configure your store to be the Metric class:
   #
-  #   script/generate model Metric script/generate name:string duration:integer
-  #     instrumenter_id:string payload:text started_at:datetime created_at:datetime --skip-timestamps
+  #   RailsMetrics.set_store { Metric }
   #
-  # You can use any name you wish. Next, you need to include RailsMetrics::Store
-  # and set the payload as a serializable attribute:
+  # Whenever a notification comes, RailsMetrics instantiates a new
+  # store and call store! on it with the instrumentation arguments:
   #
-  #   class Metric < ActiveRecord::Base
-  #     include RailsMetrics::Store
+  #   Metric.new.store!(args)
   #
-  #     validates_presence_of :name, :transaction_id, :duration, :started_at
-  #     serialize :payload
-  #   end
+  # The method store! is implemented below and it requires the method
+  # save_metric! to be implemented in the target class.
   #
   module Store
     def store!(args)
@@ -27,8 +24,10 @@ module RailsMetrics
       self
     end
 
+  protected
+
     def save_metrics!
-      save!
+      raise NotImplementedError
     end
   end
 end
