@@ -5,7 +5,7 @@ module RailsMetrics
     engine_name :rails_metrics
 
     # Add middleware
-    config.middleware.use RailsMetrics::MuteMiddleware
+    config.middleware.use RailsMetrics::Mute::Middleware
 
     # Initialize configure parameters
     config.rails_metrics.ignore_lambdas  = {}
@@ -24,11 +24,7 @@ module RailsMetrics
 
     initializer "rails_metrics.start_subscriber" do
       ActiveSupport::Notifications.subscribe do |*args|
-        if RailsMetrics.valid_for_storing?(args)
-          RailsMetrics.mute! do
-            RailsMetrics.store!(args)
-          end
-        end
+        RailsMetrics.async_consumer.push(args) if RailsMetrics.valid_for_storing?(args)
       end
     end
   end

@@ -2,10 +2,12 @@
 # TODO Push database writes to an Async Queue
 
 module RailsMetrics
-  autoload :MuteMiddleware, 'rails_metrics/mute_middleware'
-  autoload :PayloadParser,  'rails_metrics/payload_parser'
-  autoload :Store,          'rails_metrics/store'
-  autoload :VERSION,        'rails_metrics/version'
+  autoload :AsyncConsumer,    'rails_metrics/async_consumer'
+  autoload :Mute,             'rails_metrics/mute'
+  autoload :PayloadParser,    'rails_metrics/payload_parser'
+  autoload :Store,            'rails_metrics/store'
+  autoload :VERSION,          'rails_metrics/version'
+  autoload :VoidInstrumenter, 'rails_metrics/async_consumer'
 
   module ORM
     autoload :ActiveRecord, 'rails_metrics/orm/active_record'
@@ -17,6 +19,11 @@ module RailsMetrics
   #
   def self.set_store(&block)
     metaclass.send :define_method, :store, &block
+  end
+
+  # Instantiate the store and call store!
+  def self.store!(args)
+    self.store.new.store!(args)
   end
 
   # Allow you to specify a condition to ignore a notification based
@@ -37,15 +44,24 @@ module RailsMetrics
     ignore_lambdas[name] = block
   end
 
-  # Stores the blocks given to ignore with their respective identifier
-  # in a hash.
+  # Stores the blocks given to ignore with their respective identifier in a hash.
   def self.ignore_lambdas
     @@ignore_lambdas ||= {}
   end
 
-  # Stroes ignore patterns that can be given as strings or regexps
+  # Stores ignore patterns that can be given as strings or regexps.
   def self.ignore_patterns
     @@ignore_patterns ||= []
+  end
+
+  # Holds the queue which store stuff in the database.
+  def self.async_consumer
+    @@async_consumer ||= AsyncConsumer.new { |args| RailsMetrics.store!(args) }
+  end
+
+  # Wait until the async queue is consumed.
+  def self.wait
+    sleep(0.05) until async_consumer.empty?
   end
 
   # A notification is valid for storing if two conditions are met:
@@ -59,40 +75,9 @@ module RailsMetrics
   def self.valid_for_storing?(args) #:nodoc:
     name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
 
-    !(RailsMetrics.blacklist.include?(instrumenter_id) ||
+    !(RailsMetrics::Mute.blacklist.include?(instrumenter_id) ||
     self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } ||
     self.ignore_lambdas.values.any? { |b| b.call(name, payload) })
-  end
-
-  # Mute RailsMetrics subscriber during the block.
-  def self.mute!
-    RailsMetrics.blacklist << ActiveSupport::Notifications.instrumenter.id
-    yield
-  ensure
-    RailsMetrics.blacklist.pop
-  end
-
-  # Mute a given method in a specified object.
-  #
-  #   RailsMetric.mute!(ActiveRecord::Base.connection, :log)
-  #
-  def self.mute_method!(object, method)
-    object.class_eval <<-METHOD, __FILE__, __LINE__ + 1
-      def #{method}_with_mute!(*args, &block)
-        RailsMetrics.mute!{ #{method}_without_mute!(*args, &block) }
-      end
-      alias_method_chain :#{method}, :mute!
-    METHOD
-  end
-
-  # Instantiate the store and call store!
-  def self.store!(args)
-    self.store.new.store!(args)
-  end
-
-  # Keeps a blacklist of instrumenters ids.
-  def self.blacklist
-    Thread.current[:rails_metrics_blacklist] ||= []
   end
 end
 

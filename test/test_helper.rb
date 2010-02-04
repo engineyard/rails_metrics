@@ -21,6 +21,17 @@ ActionMailer::Base.default_url_options[:host] = 'test.com'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 class ActiveSupport::TestCase
+  class MockStore < ::MockStore
+    def store!(args)
+      super
+
+      if args[0] == "rails_metrics.kicker"
+        args << :kicked!
+        ActiveSupport::Notifications.instrument("rails_metrics.inside_store")
+      end
+    end
+  end
+
   setup do
     wait
     RailsMetrics.set_store { Metric }
@@ -42,13 +53,12 @@ class ActiveSupport::TestCase
   end
 
   def wait
-    ActiveSupport::Notifications.notifier.wait
+    RailsMetrics.wait
   end
 
-  # Sometimes we need to wait until ActiveSupport::Notifications releases
-  # that something was pushed to the Queue.
+  # Sometimes we need to wait until RailsMetrics push reaches the Queue.
   def wait!
-    sleep(0.1)
+    sleep(0.05)
     wait
   end
 
