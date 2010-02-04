@@ -1,5 +1,4 @@
-require File.expand_path("../../../../rails/vendor/gems/environment.rb", File.dirname(__FILE__))
-
+require File.expand_path("../../../../rails/vendor/environment", File.dirname(__FILE__))
 require 'rails/all'
 
 # To pick the frameworks you want, remove 'require "rails/all"'

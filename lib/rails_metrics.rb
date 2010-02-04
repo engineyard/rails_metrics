@@ -1,6 +1,5 @@
-Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
-
 # TODO Allow metrics path to be configurable
+# TODO Push database writes to an Async Queue
 
 module RailsMetrics
   autoload :MuteMiddleware, 'rails_metrics/mute_middleware'
@@ -55,18 +54,20 @@ module RailsMetrics
   #
   #   2) If the notification name does not match any ignored pattern;
   #
-  def self.valid_for_storing?(name, payload, instrumenter_id) #:nodoc:
+  def self.valid_for_storing?(args) #:nodoc:
+    name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
+
     !(RailsMetrics.blacklist.include?(instrumenter_id) ||
     self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } ||
-    self.ignore_lambdas.values.any? { |b| b.call(name, payload, instrumenter_id) })
+    self.ignore_lambdas.values.any? { |b| b.call(name, payload) })
   end
 
   # Mute RailsMetrics subscriber during the block.
   def self.mute!
-    ActiveSupport::Notifications.instrument("rails_metrics.add_to_blacklist")
+    RailsMetrics.blacklist << ActiveSupport::Notifications.instrumenter.id
     yield
   ensure
-    ActiveSupport::Notifications.instrument("rails_metrics.remove_from_blacklist")
+    RailsMetrics.blacklist.pop
   end
 
   # Mute a given method in a specified object.
@@ -94,18 +95,12 @@ module RailsMetrics
 end
 
 Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
-
-# Ignore callback because it's a Rails internal hook
-RailsMetrics.ignore_patterns << "action_dispatch.callback"
+RailsMetrics.ignore_patterns << "action_controller.start_processing"
 
 ActiveSupport::Notifications.subscribe do |*args|
-  name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
-
-  if name == "rails_metrics.add_to_blacklist"
-    RailsMetrics.blacklist << instrumenter_id
-  elsif name == "rails_metrics.remove_from_blacklist"
-    RailsMetrics.blacklist.pop
-  elsif RailsMetrics.valid_for_storing?(name, payload, instrumenter_id)
-    RailsMetrics.store!(args)
+  if RailsMetrics.valid_for_storing?(args)
+    RailsMetrics.mute! do
+      RailsMetrics.store!(args)
+    end
   end
 end

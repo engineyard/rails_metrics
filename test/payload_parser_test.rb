@@ -1,6 +1,8 @@
 require 'test_helper'
 
-RailsMetrics::PayloadParser.mattr_accessor :parsers
+RailsMetrics::PayloadParser.class_eval do
+  def self.parsers; @parsers; end
+end
 
 class PayloadParserTest < ActiveSupport::TestCase
   setup do
@@ -8,7 +10,7 @@ class PayloadParserTest < ActiveSupport::TestCase
   end
 
   teardown do
-    RailsMetrics::PayloadParser.parsers = @_previous_parsers
+    RailsMetrics::PayloadParser.parsers.replace @_previous_parsers
   end
 
   delegate :add, :delete, :filter, :to => RailsMetrics::PayloadParser

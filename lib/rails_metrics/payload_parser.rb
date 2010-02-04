@@ -37,13 +37,13 @@ module RailsMetrics
   #   RailsMetrics::PayloadParser.delete "active_record.sql"
   #
   module PayloadParser
-    @@parsers = {}
+    @parsers = {}
 
     def self.add(*names, &block)
       options = names.extract_options!
 
       names.each do |name|
-        @@parsers[name.to_s] = if block_given?
+        @parsers[name.to_s] = if block_given?
           block
         elsif options.present?
           options.to_a.flatten
@@ -54,11 +54,11 @@ module RailsMetrics
     end
 
     def self.delete(*names)
-      names.each { |name| @@parsers.delete(name.to_s) }
+      names.each { |name| @parsers.delete(name.to_s) }
     end
 
     def self.filter(name, payload)
-      parser = @@parsers[name]
+      parser = @parsers[name]
       case parser
       when Array
         payload.send(*parser)
@@ -78,8 +78,10 @@ module RailsMetrics
         "action_controller.expire_page", "action_controller.write_page"
 
     # ActionController - process action
-    add "action_controller.process_action", "action_controller.redirect_to",
-        "action_controller.send_data", "action_controller.send_file"
+    add "action_controller.process_action", :except => :params
+
+    add "action_controller.redirect_to", "action_controller.send_data",
+        "action_controller.send_file"
 
     # ActionView
     add "action_view.render_template", "action_view.render_partial",
@@ -103,8 +105,5 @@ module RailsMetrics
 
     # ActiveResource
     add "active_resource.request"
-
-    # TODO Render with exception
-    # add "action_dispatch.show_exception"
   end
 end

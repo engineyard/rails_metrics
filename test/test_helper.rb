@@ -7,7 +7,7 @@ require 'rubygems'
 #   1) Install latest bundler with "gem install bundler"
 #   2) Clone rails in git://github.com/rails/rails
 #   3) Ensure rails checkout is in the same directory as rails_metrics' one
-#   4) Bundle rails repository requirements with "gem bundle"
+#   4) Bundle rails repository requirements with "bundle install & bundle lock"
 #   5) Go to test/dummy directory and run "rake db:create:all & rake db:migrate"
 #   6) rake test
 #
@@ -45,7 +45,7 @@ class ActiveSupport::TestCase
     ActiveSupport::Notifications.notifier.wait
   end
 
-  # Sometimes we need to wait, until ActiveSupport::Notifications releases
+  # Sometimes we need to wait until ActiveSupport::Notifications releases
   # that something was pushed to the Queue.
   def wait!
     sleep(0.1)

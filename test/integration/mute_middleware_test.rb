@@ -9,7 +9,6 @@ class MuteMiddlewareTest < ActionController::IntegrationTest
     assert_no_difference "Metric.count" do
       get "/metrics"
       wait!
-      puts Metric.all
     end
   end
 end
