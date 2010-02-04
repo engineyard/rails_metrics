@@ -32,7 +32,7 @@ class MuteTest < ActiveSupport::TestCase
     assert_equal "rails_metrics.something", MockStore.instances.last.args[0]
 
     MockStore.instances.clear
-    RailsMetrics::Mute.mute_method!(notifier, :notify)
+    RailsMetrics.mute_method!(notifier, :notify)
 
     notifier.new.notify
     wait

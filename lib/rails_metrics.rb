@@ -1,5 +1,5 @@
 # TODO Allow metrics path to be configurable
-# TODO Push database writes to an Async Queue
+require 'active_support/core_ext/module/delegation'
 
 module RailsMetrics
   autoload :AsyncConsumer,    'rails_metrics/async_consumer'
@@ -11,6 +11,10 @@ module RailsMetrics
 
   module ORM
     autoload :ActiveRecord, 'rails_metrics/orm/active_record'
+  end
+
+  class << self
+    delegate :mute!, :mute_method!, :to => RailsMetrics::Mute
   end
 
   # Set which store to use in RailsMetrics.
