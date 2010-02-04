@@ -1,8 +1,5 @@
 require File.expand_path('../boot', __FILE__)
 
-$:.unshift File.expand_path('../../../../lib', __FILE__)
-require 'rails_metrics'
-
 module Dummy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.

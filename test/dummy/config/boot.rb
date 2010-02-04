@@ -1,5 +1,8 @@
-require File.expand_path("../../../../rails/vendor/environment", File.dirname(__FILE__))
+require File.expand_path("../../../../rails/.bundle/environment", File.dirname(__FILE__))
 require 'rails/all'
+
+$:.unshift File.expand_path('../../../../lib', __FILE__)
+require 'rails_metrics'
 
 # To pick the frameworks you want, remove 'require "rails/all"'
 # and list the framework railties that you want:
