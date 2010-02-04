@@ -34,6 +34,9 @@ module Dummy
       g.test_framework  false
     end
 
+    # Reload engines
+    config.reload_engines = true
+
     # Set RailsMetrics store.
     config.rails_metrics.set_store = lambda { Metric }
   end

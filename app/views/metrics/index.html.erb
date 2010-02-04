@@ -7,7 +7,6 @@
     <th>Instrumenter</th>
     <th>Payload</th>
     <th>Started at</th>
-    <th>Created at</th>
     <th></th>
     <th></th>
   </tr>
@@ -19,7 +18,6 @@
     <td><%= metric.instrumenter_id %></td>
     <td><%= metric.payload.inspect %></td>
     <td><%= metric.started_at %></td>
-    <td><%= metric.created_at %></td>
     <td><%= link_to 'Show', metric %></td>
     <td><%= link_to 'Destroy', metric, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>

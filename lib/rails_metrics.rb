@@ -1,3 +1,5 @@
+Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
+
 # TODO Allow metrics path to be configurable
 require 'active_support/core_ext/module/delegation'
 

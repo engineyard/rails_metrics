@@ -1,5 +1,5 @@
 # Mute migration notifications.
-RailsMetrics.mute_method! ActiveRecord::Migrator, :migrate
+RailsMetrics.mute_method!(ActiveRecord::Migrator, :migrate)
 
 # Setup to ignore any query which is not a SELECT, INSERT, UPDATE
 # or DELETE and queries made by the own store.
@@ -37,6 +37,16 @@ module RailsMetrics
 
         # Serialize payload data
         serialize :payload
+
+        # Select scopes
+        scope :by_name,         lambda { |name| where(:name => name) }
+        scope :by_instrumenter, lambda { |instrumenter_id| where(:instrumenter_id => instrumenter_id) }
+
+        # Order scopes
+        scope :earliest, order("started_at ASC")
+        scope :latest,   order("started_at DESC")
+        scope :slowest,  order("duration DESC")
+        scope :fastest,  order("duration ASC")
       end
 
       module ClassMethods

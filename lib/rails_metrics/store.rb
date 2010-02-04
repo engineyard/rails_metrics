@@ -13,6 +13,8 @@ module RailsMetrics
   # save_metric! to be implemented in the target class.
   #
   module Store
+    VALID_ORDERS = %w(earliest latest slowest fastest).freeze
+
     def store!(args)
       self.name            = args[0].to_s
       self.started_at      = args[1]
