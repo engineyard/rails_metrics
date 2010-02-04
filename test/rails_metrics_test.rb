@@ -25,11 +25,14 @@ class RailsMetricsTest < ActiveSupport::TestCase
   end
 
   test "does not send an event to the store if it matches an ignored pattern" do
-    swap RailsMetrics, :ignore_patterns => [/rails_metrics/] do
+    RailsMetrics.ignore_patterns << /rails_metrics/
+
+    begin
       instrument "rails_metrics.something"
       wait
-
       assert MockStore.instances.empty?
+    ensure
+      RailsMetrics.ignore_patterns.pop
     end
   end
 

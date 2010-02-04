@@ -1,5 +1,8 @@
 require File.expand_path('../boot', __FILE__)
 
+$:.unshift File.expand_path('../../../../lib', __FILE__)
+require 'rails_metrics'
+
 module Dummy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
@@ -30,5 +33,8 @@ module Dummy
       g.template_engine :erb
       g.test_framework  false
     end
+
+    # Set RailsMetrics store.
+    config.rails_metrics.set_store = lambda { Metric }
   end
 end

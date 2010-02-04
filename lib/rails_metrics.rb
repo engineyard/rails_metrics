@@ -11,9 +11,6 @@ module RailsMetrics
     autoload :ActiveRecord, 'rails_metrics/orm/active_record'
   end
 
-  mattr_accessor :ignore_patterns
-  @@ignore_patterns = []
-
   # Set which store to use in RailsMetrics.
   #
   #   RailsMetrics.set_store { Metric }
@@ -40,10 +37,15 @@ module RailsMetrics
     ignore_lambdas[name] = block
   end
 
-  # Stroes the blocks given to ignore with their respective identifier
+  # Stores the blocks given to ignore with their respective identifier
   # in a hash.
-  def self.ignore_lambdas #:nodoc:
+  def self.ignore_lambdas
     @@ignore_lambdas ||= {}
+  end
+
+  # Stroes ignore patterns that can be given as strings or regexps
+  def self.ignore_patterns
+    @@ignore_patterns ||= []
   end
 
   # A notification is valid for storing if two conditions are met:
@@ -94,13 +96,4 @@ module RailsMetrics
   end
 end
 
-Rails.application.config.middleware.use RailsMetrics::MuteMiddleware
-RailsMetrics.ignore_patterns << "action_controller.start_processing"
-
-ActiveSupport::Notifications.subscribe do |*args|
-  if RailsMetrics.valid_for_storing?(args)
-    RailsMetrics.mute! do
-      RailsMetrics.store!(args)
-    end
-  end
-end
+require 'rails_metrics/engine'
