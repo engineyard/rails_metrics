@@ -16,7 +16,7 @@ module RailsMetrics
   end
 
   class << self
-    delegate :mute!, :mute_method!, :to => RailsMetrics::Mute
+    delegate :mute!, :mute_instance_method!, :mute_class_method!, :to => RailsMetrics::Mute
   end
 
   # Set which store to use in RailsMetrics.

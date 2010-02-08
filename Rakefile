@@ -1,31 +1,37 @@
 # encoding: UTF-8
 
-require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
-require File.join(File.dirname(__FILE__), 'lib', 'rails_metrics', 'version')
+require "rake"
+require "rake/testtask"
+require "rake/rdoctask"
+require "fileutils"
+require File.expand_path("../lib/rails_metrics/version", __FILE__)
 
-desc 'Default: run unit tests.'
+desc "Default: run unit tests."
 task :default => :test
 
-desc 'Test RailsMetrics'
+task :prepare do
+  FileUtils.cd File.expand_path("../test/dummy", __FILE__)
+  system("RAILS_ENV=test rake db:create --trace & RAILS_ENV=test rake db:migrate --trace") 
+end
+
+desc "Test RailsMetrics"
 Rake::TestTask.new(:test) do |t|
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
+  t.libs << "test"
+  t.pattern = "test/**/*_test.rb"
   t.verbose = true
 end
 
-desc 'Generate documentation for RailsMetrics'
+desc "Generate documentation for RailsMetrics"
 Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'RailsMetrics'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.rdoc')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.rdoc_dir = "rdoc"
+  rdoc.title    = "RailsMetrics"
+  rdoc.options << "--line-numbers" << "--inline-source"
+  rdoc.rdoc_files.include("README.rdoc")
+  rdoc.rdoc_files.include("lib/**/*.rb")
 end
 
 begin
-  require 'jeweler'
+  require "jeweler"
   Jeweler::Tasks.new do |s|
     s.name = "rails_metrics"
     s.version = RailsMetrics::VERSION
@@ -33,7 +39,7 @@ begin
     s.email = "contact@engineyard.com"
     s.homepage = "http://github.com/engineyard"
     s.description = "Metrics measurement for your app on top of ActiveSupport::Notifications"
-    s.authors = ['José Valim']
+    s.authors = ["José Valim"]
     s.files =  FileList["[A-Z]*", "{app,config,generators,lib}/**/*", "init.rb"]
   end
 

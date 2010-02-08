@@ -1,22 +1,19 @@
 # Configure Rails Envinronment
 ENV["RAILS_ENV"] = "test"
-require 'rubygems'
 
 # To test RailsMetrics, you need to:
 #
 #   1) Install latest bundler with "gem install bundler"
-#   2) Clone rails in git://github.com/rails/rails
-#   3) Ensure rails checkout is in the same directory as rails_metrics' one
-#   4) Bundle rails repository requirements with "bundle install & bundle lock"
-#   5) Go to test/dummy directory and run "rake db:create:all & rake db:migrate"
-#   6) rake test
+#   2) bundle install
+#   3) rake prepare
+#   4) rake test
 #
-require File.expand_path("dummy/config/environment.rb",  File.dirname(__FILE__))
-require 'rails/test_help'
+require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require "rails/test_help"
 
 ActionMailer::Base.delivery_method = :test
 ActionMailer::Base.perform_deliveries = true
-ActionMailer::Base.default_url_options[:host] = 'test.com'
+ActionMailer::Base.default_url_options[:host] = "test.com"
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 

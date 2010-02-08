@@ -5,5 +5,5 @@ coverage/*
 *.sqlite3
 rdoc/*
 test/dummy/db/schema.rb
-rails_metrics.gemspec
 pkg
+log/*

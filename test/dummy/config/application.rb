@@ -1,7 +1,18 @@
 require File.expand_path('../boot', __FILE__)
 
+require "active_model/railtie"
+require "active_record/railtie"
+require "action_controller/railtie"
+require "action_view/railtie"
+require "action_mailer/railtie"
+
+Bundler.require
+require "rails_metrics"
+
 module Dummy
   class Application < Rails::Application
+    config.root = File.expand_path("../..", __FILE__)
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -35,6 +46,6 @@ module Dummy
     config.reload_engines = true
 
     # Set RailsMetrics store.
-    config.rails_metrics.set_store = lambda { Metric }
+    config.rails_metrics.set_store = lambda { ::Metric }
   end
 end

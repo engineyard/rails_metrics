@@ -14,15 +14,20 @@ module RailsMetrics
 
     # Mute a given method in a specified object.
     #
-    #   RailsMetric::Mute.mute_method!(ActiveRecord::Base.connection, :log)
+    #   RailsMetric::Mute.mute_instance_method!(ActiveRecord::Base.connection, :log)
     #
-    def self.mute_method!(object, method)
+    def self.mute_instance_method!(object, method)
       object.class_eval <<-METHOD, __FILE__, __LINE__ + 1
         def #{method}_with_mute!(*args, &block)
           RailsMetrics::Mute.mute!{ #{method}_without_mute!(*args, &block) }
         end
         alias_method_chain :#{method}, :mute!
       METHOD
+    end
+
+    # The same as mute_instance_method!, but mutes a class method.
+    def self.mute_class_method!(object, method)
+      mute_instance_method!(object.metaclass, method)
     end
 
     # Keeps a blacklist of instrumenters ids.
