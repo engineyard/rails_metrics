@@ -11,7 +11,9 @@ task :default => :test
 
 task :prepare do
   FileUtils.cd File.expand_path("../test/dummy", __FILE__)
-  system("RAILS_ENV=test rake db:create --trace & RAILS_ENV=test rake db:migrate --trace") 
+  system("rake db:create:all")
+  system("rake db:migrate")
+  system("rake db:test:clone")
 end
 
 desc "Test RailsMetrics"

@@ -27,6 +27,9 @@ module RailsMetrics
     metaclass.send :define_method, :store, &block
   end
 
+  # Place holder for the store
+  def self.store; end
+
   # Instantiate the store and call store!
   def self.store!(args)
     self.store.new.store!(args)
@@ -81,9 +84,10 @@ module RailsMetrics
   def self.valid_for_storing?(args) #:nodoc:
     name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
 
-    !(RailsMetrics::Mute.blacklist.include?(instrumenter_id) ||
-    self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } ||
-    self.ignore_lambdas.values.any? { |b| b.call(name, payload) })
+    RailsMetrics.store &&
+    !RailsMetrics::Mute.blacklist.include?(instrumenter_id) &&
+    !self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } &&
+    !self.ignore_lambdas.values.any? { |b| b.call(name, payload) }
   end
 end
 

@@ -1,5 +1,3 @@
-require 'rails_metrics'
-
 module RailsMetrics
   class Engine < ::Rails::Engine
     engine_name :rails_metrics
@@ -26,6 +24,11 @@ module RailsMetrics
       ActiveSupport::Notifications.subscribe do |*args|
         RailsMetrics.async_consumer.push(args) if RailsMetrics.valid_for_storing?(args)
       end
+    end
+
+    config.after_initialize do
+      # Ensure the store is loaded right after initialization
+      RailsMetrics.store
     end
   end
 end
