@@ -53,23 +53,35 @@ module RailsMetricsHelper
     content.join("\n").html_safe
   end
 
-  # Allows to scope the metrics to the given scope.
-  def link_to_scoped_rails_metrics(what, content, value=nil)
+  # Link to set a by_scope using the given content. If no value is given,
+  # the content is used as link value as well.
+  def link_to_set_by_scope(what, content, value=nil)
     return content if instance_variable_get(:"@by_#{what}")
     value ||= content
-    link_to content, url_for_scope(what, value), :title => value
+    link_to content, url_for_scope(:"by_#{what}" => value), :title => value
   end
 
-  # Link to clear the scope through a cancel item.
-  def link_to_clear_scope(what)
+  # Link to clear a by_scope using a cancel image.
+  def link_to_clear_by_scope(what)
     return unless instance_variable_get(:"@by_#{what}")
-    image = image_tag("rails_metrics/cancel.png", :title => "Remove filter", :alt => "Remove filter") 
-    link_to(image, url_for_scope(what), :title => "Remove filter")
+    link_to_set_scope_with_image("rails_metrics/cancel.png", "Remove filter", :"by_#{what}" => nil)
+  end
+
+  # Link to order by scopes by using two arrows, one up and other down
+  def link_to_order_by_scopes(up, down)
+    link_to_set_scope_with_image("rails_metrics/arrow_up.png", "Order by #{up}", :order_by => up) <<
+      link_to_set_scope_with_image("rails_metrics/arrow_down.png", "Order by #{down}", :order_by => down)
   end
 
   protected
 
-  def url_for_scope(what, value=nil)
-    url_for(params.except(:limit, :offset, :action).merge(:"by_#{what}" => value))
+  def url_for_scope(hash)
+    url_for(params.except(:limit, :offset, :action).merge!(hash))
+  end
+
+  def link_to_set_scope_with_image(src, title, scope)
+    image = image_tag(src, :title => title, :alt => title)
+    link  = url_for_scope(scope)
+    link_to image, link, :title => title
   end
 end

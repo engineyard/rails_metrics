@@ -11,11 +11,11 @@
 
   <table id="rails_metrics_table" class="index">
     <tr>
-      <th>Instrumenter<%= link_to_clear_scope(:instrumenter_id) %></th>
-      <th>Name<%= link_to_clear_scope(:name) %></th>
-      <th>Duration</th>
+      <th>Instrumenter<br /><%= link_to_clear_by_scope(:instrumenter_id) %></th>
+      <th>Name<br /><%= link_to_clear_by_scope(:name) %></th>
+      <th>Duration<br /><%= link_to_order_by_scopes(:slowest, :fastest) %></th>
       <th>Payload</th>
-      <th>When</th>
+      <th>When<br /><%= link_to_order_by_scopes(:earliest, :latest) %></th>
       <th></th>
       <th></th>
     </tr>

@@ -3,12 +3,12 @@
 <table id="rails_metrics_table" class="show">
   <tr class="odd">
     <td>Instrumenter</td>
-    <td><%= link_to_scoped_rails_metrics :instrumenter_id, @metric.instrumenter_id %></td>
+    <td><%= link_to_set_by_scope :instrumenter_id, @metric.instrumenter_id %></td>
   </tr>
 
   <tr class="even">
     <td>Name</td>
-    <td><%= link_to_scoped_rails_metrics :name, @metric.name %></td>
+    <td><%= link_to_set_by_scope :name, @metric.name %></td>
   </tr>
 
   <tr class="odd">

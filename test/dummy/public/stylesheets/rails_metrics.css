@@ -11,9 +11,9 @@ a:visited { color: #666; }
 a:hover { color: #fff; background-color: #000; }
 
 div.notice {
-  border: 1px solid #393;
-  background: #ADA url(../images/rails_metrics/accept.png) no-repeat 2px 5px;
-  color: #000;
+  border: 1px solid #CCA;
+  background: #FFD url(../images/rails_metrics/tick.png) no-repeat 2px 5px;
+  color: #363;
   padding: 5px 21px;
 }
 
@@ -78,7 +78,7 @@ h3 {
 }
 
 #rails_metrics_table th a {
-  display:block;
+  display:inline;
 }
 
 #rails_metrics_table th a:hover {
@@ -99,7 +99,6 @@ h3 {
 
 #rails_metrics_table td.payload {
   text-align: left;
-  min-width: 50%;
 }
 
 #rails_metrics_table td.payload p {
