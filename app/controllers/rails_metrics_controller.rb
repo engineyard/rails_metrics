@@ -30,7 +30,7 @@ class RailsMetricsController < ApplicationController
     @by_name = params[:by_name].presence
     store = store.by_name(@by_name) if @by_name
 
-    @by_instrumenter = params[:by_instrumenter_id].presence
+    @by_instrumenter_id = params[:by_instrumenter_id].presence
     store = store.by_instrumenter_id(@by_instrumenter_id) if @by_instrumenter_id
 
     @order_by = (valid_order_by? ? params[:order_by] : :latest).to_sym

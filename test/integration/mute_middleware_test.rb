@@ -5,9 +5,9 @@ class MuteMiddlewareTest < ActionController::IntegrationTest
     Metric.delete_all
   end
 
-  test "silences all metrics created in the /metrics path" do
+  test "silences all metrics created in the configured rails metrics path" do
     assert_no_difference "Metric.count" do
-      get "/metrics"
+      get "/rails_metrics"
       wait!
     end
   end

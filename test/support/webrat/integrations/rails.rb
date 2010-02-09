@@ -1,3 +1,13 @@
+require 'webrat/core/elements/field'
+
+module Webrat
+  Field.class_eval do
+    def parse_rails_request_params(params)
+      Rack::Utils.parse_nested_query(params)
+    end
+  end
+end
+
 module ActionController #:nodoc:
   IntegrationTest.class_eval do
     include Webrat::Methods

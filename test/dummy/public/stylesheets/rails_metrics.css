@@ -1,15 +1,9 @@
 body { background-color: #fff; color: #333; }
 
 body, p, ol, ul, td {
-  font-family: verdana, arial, helvetica, sans-serif;
+  font-family: helvetica, arial, sans-serif;
   font-size: 13px;
   line-height: 18px;
-}
-
-pre {
-  background-color: #eee;
-  padding: 10px;
-  font-size: 11px;
 }
 
 a { color: #000; }
@@ -20,8 +14,36 @@ p.notice {
   color: green;
 }
 
-#rails_metrics_table td {
+#rails_metrics_table {
+ 	border-collapse: collapse;
   text-align: center;
+}
+
+#rails_metrics_table th {
+	color: #fff;
+	padding: 5px 5px 3px;
+	background-color: #c33;
+}
+
+#rails_metrics_table th a {
+	display:block;
+}
+
+#rails_metrics_table th a:hover {
+	background-color: transparent;
+}
+
+#rails_metrics_table th a {
+	color: #fff;
+	text-decoration: none;
+}
+
+#rails_metrics_table td {
+	padding: 0 3px;
+}
+
+#rails_metrics_table tr.odd {
+	background-color: #f0f0f0;
 }
 
 #rails_metrics_table td.name {
@@ -30,8 +52,14 @@ p.notice {
 
 #rails_metrics_table td.payload {
   text-align: left;
+	min-width: 50%;
+}
+
+#rails_metrics_table td.payload p {
+	margin: 5px 0;
+	padding: 0;
 }
 
 #rails_metrics_table td.show a:hover{
-	background-color: #fff;
+	background-color: transparent;
 }
