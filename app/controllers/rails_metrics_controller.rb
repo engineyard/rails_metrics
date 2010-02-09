@@ -1,4 +1,4 @@
-class MetricsController < ApplicationController
+class RailsMetricsController < ApplicationController
   respond_to :html
 
   # GET /metrics
@@ -20,7 +20,8 @@ class MetricsController < ApplicationController
   def destroy
     @metric = find_store(params[:id])
     @metric.destroy
-    respond_with(@metric)
+    flash[:notice] = "Metric #{@metric.name.inspect} was destroyed with success."
+    respond_with(@metric, :location => rails_metrics_path)
   end
 
   protected
@@ -29,8 +30,8 @@ class MetricsController < ApplicationController
     @by_name = params[:by_name].presence
     store = store.by_name(@by_name) if @by_name
 
-    @by_instrumenter = params[:by_instrumenter].presence
-    store = store.by_instrumenter(@by_instrumenter) if @by_instrumenter
+    @by_instrumenter = params[:by_instrumenter_id].presence
+    store = store.by_instrumenter_id(@by_instrumenter_id) if @by_instrumenter_id
 
     @order_by = (valid_order_by? ? params[:order_by] : :latest).to_sym
     store = store.send(@order_by)

@@ -43,7 +43,7 @@ module RailsMetrics
       end
 
       def call(env)
-        if env["PATH_INFO"] =~ /^\/metrics/
+        if env["PATH_INFO"] =~ /^\/rails_metrics/
           mute_metrics! do
             @app.call(env)
           end

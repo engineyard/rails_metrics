@@ -1,9 +1,5 @@
 require 'test_helper'
 
-RailsMetrics::PayloadParser.class_eval do
-  def self.parsers; @parsers; end
-end
-
 class PayloadParserTest < ActiveSupport::TestCase
   setup do
     @_previous_parsers = RailsMetrics::PayloadParser.parsers.dup

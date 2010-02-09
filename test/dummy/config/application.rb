@@ -11,6 +11,7 @@ require "rails_metrics"
 
 module Dummy
   class Application < Rails::Application
+    # Remove this in next release
     config.root = File.expand_path("../..", __FILE__)
 
     # Settings in config/environments/* take precedence over those specified here.

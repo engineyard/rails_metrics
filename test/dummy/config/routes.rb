@@ -1,7 +1,7 @@
 Dummy::Application.routes.draw do |map|
   resources :users
 
-  resources :metrics, :only => [:index, :show, :destroy]
+  resources :rails_metrics, :only => [:index, :show, :destroy]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

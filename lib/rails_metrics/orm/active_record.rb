@@ -39,8 +39,8 @@ module RailsMetrics
         serialize :payload
 
         # Select scopes
-        scope :by_name,         lambda { |name| where(:name => name) }
-        scope :by_instrumenter, lambda { |instrumenter_id| where(:instrumenter_id => instrumenter_id) }
+        scope :by_name,            lambda { |name| where(:name => name) }
+        scope :by_instrumenter_id, lambda { |instrumenter_id| where(:instrumenter_id => instrumenter_id) }
 
         # Order scopes
         scope :earliest, order("started_at ASC")

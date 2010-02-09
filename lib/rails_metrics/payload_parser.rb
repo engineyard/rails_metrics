@@ -37,13 +37,22 @@ module RailsMetrics
   #   RailsMetrics::PayloadParser.delete "active_record.sql"
   #
   module PayloadParser
-    @parsers = {}
+    # Holds the parsers used by RailsMetrics.
+    def self.parsers
+      @parsers ||= {}
+    end
 
+    # Holds the mapped paths used in prunning.
+    def self.mapped_paths
+      @mapped_paths ||= {}
+    end
+
+    # Add a new parser.
     def self.add(*names, &block)
       options = names.extract_options!
 
       names.each do |name|
-        @parsers[name.to_s] = if block_given?
+        parsers[name.to_s] = if block_given?
           block
         elsif options.present?
           options.to_a.flatten
@@ -53,12 +62,14 @@ module RailsMetrics
       end
     end
 
+    # Delete a previous parser
     def self.delete(*names)
-      names.each { |name| @parsers.delete(name.to_s) }
+      names.each { |name| parsers.delete(name.to_s) }
     end
 
+    # Filter the given payload based on the name given and configured parsers
     def self.filter(name, payload)
-      parser = @parsers[name]
+      parser = parsers[name]
       case parser
       when Array
         payload.send(*parser)
@@ -68,6 +79,22 @@ module RailsMetrics
         payload
       end
     end
+
+    # Prune paths based on the mapped paths set.
+    def self.prune_path(raw_path)
+      mapped_paths.each do |path, replacement|
+        raw_path = raw_path.gsub(path, replacement)
+      end
+      raw_path
+    end
+
+    # Make Rails.root appear as APP in pruned paths.
+    mapped_paths[Rails.root.to_s] = "RAILS_ROOT"
+
+    # Make Gem paths appear as GEM in pruned paths.
+    Gem.path.each do |path|
+      mapped_paths[File.join(path, "gems")] = "GEMS_ROOT"
+    end if defined?(Gem)
 
     # ActiveRecord
     add "active_record.sql"
@@ -89,10 +116,9 @@ module RailsMetrics
       returning Hash.new do |new_payload|
         payload.each do |key, value|
           case value
-          when String
-            new_payload[key] = value.gsub(Rails.root.to_s, "RAILS_ROOT")
           when NilClass
-            # Ignore it
+          when String
+            new_payload[key] = prune_path(value)
           else
             new_payload[key] = value
           end

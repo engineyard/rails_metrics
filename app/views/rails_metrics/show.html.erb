@@ -1,0 +1,34 @@
+<h3>Viewing metric #<%= @metric.id %></h3>
+
+<p>
+  <b>Name</b><br />
+  <%= @metric.name %>
+</p>
+
+<p>
+  <b>Duration</b><br />
+  <%= @metric.duration %>
+</p>
+
+<p>
+  <b>Instrumenter</b><br />
+  <%= @metric.instrumenter_id %>
+</p>
+
+<p>
+  <b>Payload</b><br />
+  <%= @metric.payload.inspect %>
+</p>
+
+<p>
+  <b>Started at</b><br />
+  <%= @metric.started_at %>
+</p>
+
+<p>
+  <b>Created at</b><br />
+  <%= @metric.created_at %>
+</p>
+
+
+<%= link_to 'Back', rails_metrics_path %>
