@@ -1,34 +1,36 @@
 <h3>Viewing metric #<%= @metric.id %></h3>
 
-<p>
-  <b>Name</b><br />
-  <%= @metric.name %>
-</p>
+<table id="rails_metrics_table" class="show">
+  <tr class="odd">
+    <td>Instrumenter</td>
+    <td><%= link_to_scoped_rails_metrics :instrumenter_id, @metric.instrumenter_id %></td>
+  </tr>
 
-<p>
-  <b>Duration</b><br />
-  <%= @metric.duration %>
-</p>
+  <tr class="even">
+    <td>Name</td>
+    <td><%= link_to_scoped_rails_metrics :name, @metric.name %></td>
+  </tr>
 
-<p>
-  <b>Instrumenter</b><br />
-  <%= @metric.instrumenter_id %>
-</p>
+  <tr class="odd">
+    <td>Duration</td>
+    <td><%= @metric.duration %> ms</td>
+  </tr>
 
-<p>
-  <b>Payload</b><br />
-  <%= @metric.payload.inspect %>
-</p>
+  <tr class="even">
+    <td>Payload</td>
+    <td class="payload"><%= payload_inspect(@metric.payload) %></td>
+  </tr>
 
-<p>
-  <b>Started at</b><br />
-  <%= @metric.started_at %>
-</p>
+  <tr class="odd">
+    <td>Started at</td>
+    <td><%= @metric.started_at %></td>
+  </tr>
 
-<p>
-  <b>Created at</b><br />
-  <%= @metric.created_at %>
-</p>
+  <tr class="even">
+    <td>Created at</td>
+    <td><%= @metric.created_at %></td>
+  </tr>
+</table>
 
 
 <%= link_to 'Back', rails_metrics_path %>

@@ -10,13 +10,58 @@ a { color: #000; }
 a:visited { color: #666; }
 a:hover { color: #fff; background-color: #000; }
 
-p.notice {
-  color: green;
+div.notice {
+	border: 1px solid #393;
+	background: #ADA url(../images/rails_metrics/accept.png) no-repeat 2px 5px;
+  color: #000;
+	padding: 5px 21px;
+}
+
+#rails_metrics_header {
+	background-color: #933;
+	display: block;
+	color: #fff;
+	margin: 0;
+	padding: 5px 3px;
+}
+
+#rails_metrics_header form {
+	display: inline;
+}
+
+h1 {
+	margin:0;
+	padding: 20px 0 5px;
+}
+
+h3 {
+	background-color: #c33;
+	display:block;
+	color: #fff;
+	margin: 0;
+	padding: 5px 0 3px 2px;
 }
 
 #rails_metrics_table {
  	border-collapse: collapse;
   text-align: center;
+	width: 100%;
+}
+
+#rails_metrics_table.show {
+	margin-bottom: 20px;
+	text-align: left;
+}
+
+#rails_metrics_table.show td{
+	padding:5px 0;
+	vertical-align: top;
+}
+
+#rails_metrics_table.show td:first-child{
+	font-weight: bold;
+	padding-left: 3px;
+	width: 150px;
 }
 
 #rails_metrics_table th {

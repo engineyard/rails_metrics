@@ -4,7 +4,9 @@ class RailsMetricsController < ApplicationController
   # GET /metrics
   # GET /metrics.xml
   def index
-    @metrics = scope_store(RailsMetrics.store).all
+    @metrics = scope_store(RailsMetrics.store)
+    @metrics_count = @metrics.count
+    @metrics = with_limit_and_offset(@metrics)
     respond_with(@metrics)
   end
 
@@ -20,11 +22,25 @@ class RailsMetricsController < ApplicationController
   def destroy
     @metric = find_store(params[:id])
     @metric.destroy
-    flash[:notice] = "Metric #{@metric.name.inspect} was destroyed with success."
-    respond_with(@metric, :location => rails_metrics_path)
+    flash[:notice] = "Metric ##{@metric.id} was deleted with success."
+    redirect_to rails_metrics_path
+  end
+
+  # DELETE /metrics
+  # DELETE /metrics.xml
+  def destroy_all
+    count = scope_store(RailsMetrics.store).delete_all
+    flash[:notice] = "All #{count} selected metrics were deleted."
+    redirect_to rails_metrics_path
   end
 
   protected
+
+  def with_limit_and_offset(scope)
+    @limit  = (params[:limit].presence || 50).to_i
+    @offset = (params[:offset].presence || 0).to_i
+    @metrics.limit(@limit).offset(@offset).all
+  end
 
   def scope_store(store)
     @by_name = params[:by_name].presence

@@ -1,0 +1,33 @@
+<% content_tag_for :tr, metric, :class => cycle("odd", "even") do %>
+  <td class="instrumenter_id">
+    <%= link_to_scoped_rails_metrics :instrumenter_id, metric.instrumenter_id[0..6], metric.instrumenter_id %>
+  </td>
+
+  <td class="name">
+    <%= link_to_scoped_rails_metrics :name, metric.name %>
+  </td>
+
+  <td class="duration">
+    <%= metric.duration %> ms
+  </td>
+
+  <td class="payload">
+    <%= payload_inspect(metric.payload) %>
+  </td>
+
+  <td class="duration">
+    <%= time_ago_in_words(metric.started_at) %> ago
+  </td>
+
+  <td class="show">
+    <% link_to rails_metric_path(metric), :title => "Show" do %>
+      <%= image_tag("rails_metrics/page_white_go.png", :title => "Show", :alt => "Show") %>
+    <% end %>
+  </td>
+
+  <td class="destroy">
+    <% form_tag rails_metric_path(metric), :method => :delete do %>
+      <%= image_submit_tag "rails_metrics/page_white_delete.png", :onclick => "return confirm('Are you sure?')", :alt => "Delete", :title => "Delete" %>
+    <% end %>
+  </td>
+<% end %>
