@@ -55,16 +55,18 @@ module RailsMetricsHelper
 
   # Link to set a by_scope using the given content. If no value is given,
   # the content is used as link value as well.
-  def link_to_set_by_scope(what, content, value=nil)
+  def link_to_set_by_scope(metric, what, content=nil)
+    value   ||= metric.send(what)
+    content ||= value
     return content if instance_variable_get(:"@by_#{what}")
-    value ||= content
     link_to content, url_for_scope(:"by_#{what}" => value), :title => value
   end
 
   # Link to clear a by_scope using a cancel image.
   def link_to_clear_by_scope(what)
     return unless instance_variable_get(:"@by_#{what}")
-    link_to_set_scope_with_image("rails_metrics/cancel.png", "Remove filter", :"by_#{what}" => nil)
+    link_to_set_scope_with_image("rails_metrics/cancel.png",
+      "Remove #{what.to_s.humanize.inspect} filter", :"by_#{what}" => nil)
   end
 
   # Link to order by scopes by using two arrows, one up and other down
