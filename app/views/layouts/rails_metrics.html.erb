@@ -6,7 +6,7 @@
 </head>
 <body>
   <div id="rails_metrics_header">
-    <h1>RailsMetrics</h1>
+    <h1><%= link_to "RailsMetrics", rails_metrics_path %></h1>
     <div><%= yield :rails_metrics_header %></div>
   </div>
   <%= content_tag(:div, notice, :class => :notice) if notice.present? %>

@@ -2,7 +2,7 @@
   <h2>No metrics so far, navigate on your app and come back.</h2>
 <% else %>
   <% content_for(:rails_metrics_header) do %>
-    <%= paginated_index_header %>
+    <%= pagination_and_scopes_info %>
 
     <% form_tag url_for(params.merge(:action => "destroy_all")), :method => :delete do %>
       <%= submit_tag "Delete all", :onclick => "return confirm('Are you sure you want to delete those #{@metrics_count} metrics?')" %>
@@ -22,4 +22,9 @@
 
     <%= render :partial => "table_row", :collection => @metrics, :as => :metric %>
   </table>
+
+  <div id="rails_metrics_footlinks">
+    <p><%= previous_link %> | <%= pagination_info %> | <%= next_link %></p>
+    <p>Show per page: <%= show_per_page [10, 25, 50, 100] %></p>
+  </div>
 <% end %>
