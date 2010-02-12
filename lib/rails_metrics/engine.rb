@@ -22,7 +22,15 @@ module RailsMetrics
 
     initializer "rails_metrics.start_subscriber" do
       ActiveSupport::Notifications.subscribe do |*args|
-        RailsMetrics.async_consumer.push(args) if RailsMetrics.valid_for_storing?(args)
+        if args[0] == "rails_metrics.request"
+          # TODO Commenting this line makes stuff fail, discover why
+          RailsMetrics.store.inspect
+          root_node = RailsMetrics.request_root_node
+          root_node.set_attributes!(*args)
+          RailsMetrics.async_consumer.push(root_node)
+        elsif RailsMetrics.valid_for_storing?(args)
+          RailsMetrics.request_root_node.children.push(args)
+        end
       end
     end
 

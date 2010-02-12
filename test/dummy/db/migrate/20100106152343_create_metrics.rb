@@ -3,7 +3,7 @@ class CreateMetrics < ActiveRecord::Migration
     create_table :metrics do |t|
       t.string :name
       t.integer :duration
-      t.string :instrumenter_id
+      t.integer :instrumenter_id
       t.text :payload
       t.datetime :started_at
       t.datetime :created_at

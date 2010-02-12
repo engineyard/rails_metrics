@@ -29,6 +29,59 @@ module RailsMetrics
   # Place holder for the store
   def self.store; end
 
+  def self.request_root_node
+    Thread.current[:rails_metrics_request_root_node]
+  end
+
+  def self.request_root_node=(value)
+    Thread.current[:rails_metrics_request_root_node] = value
+  end
+
+  class Node
+    attr_reader :name, :started_at, :ended_at, :payload
+
+    def initialize(name, started_at, ended_at, transaction_id, payload)
+      @name       = name
+      @started_at = started_at
+      @ended_at   = ended_at
+      @payload    = payload
+      self
+    end
+
+    def root?
+      false
+    end
+
+    def children
+      @children ||= []
+    end
+
+    def duration
+      @duration ||= 1000.0 * (@ended_at - @started_at)
+    end
+
+    def parent_of?(node)
+      start = (self.started_at - node.started_at) * 1000
+      start <= 0 && (start + self.duration >= node.duration)
+    end
+
+    def child_of?(node)
+      node.parent_of?(self)
+    end
+  end
+
+  class RootNode < Node
+    alias :set_attributes! :initialize
+    public :set_attributes!
+
+    def initialize
+    end
+
+    def root?
+      true
+    end
+  end
+
   # Allow you to specify a condition to ignore a notification based
   # on its name and/or payload. For example, if you want to ignore
   # all notifications with empty payload, one can do:
@@ -59,12 +112,38 @@ module RailsMetrics
 
   # Holds the queue which store stuff in the database.
   def self.async_consumer
-    @@async_consumer ||= AsyncConsumer.new { |args| RailsMetrics.store.new.store!(args) }
+    @@async_consumer ||= AsyncConsumer.new do |root_node|
+      root_node.children.map! { |i| RailsMetrics::Node.new(*i) }
+
+      nodes = root_node.children.dup
+      root_node.children.clear
+      nodes.push root_node
+
+      while node = nodes.shift
+        if parent = nodes.find { |n| n.parent_of?(node) }
+          parent.children << node
+        else
+          raise "OMG, Node without parent #{node.inspect}" unless nodes.empty?
+        end
+      end
+
+      save_nodes!(root_node)
+    end
+  end
+
+  def self.save_nodes!(node, parent_id=nil)
+    metric = RailsMetrics.store.new
+    metric.store!([node.name, node.started_at, node.ended_at, parent_id, node.payload])
+    parent_id = metric.id
+
+    node.children.each do |child|
+      save_nodes!(child, parent_id)
+    end
   end
 
   # Wait until the async queue is consumed.
   def self.wait
-    sleep(0.05) until async_consumer.empty?
+    sleep(0.05) until async_consumer.finished?
   end
 
   # A notification is valid for storing if two conditions are met:
@@ -78,7 +157,7 @@ module RailsMetrics
   def self.valid_for_storing?(args) #:nodoc:
     name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
 
-    RailsMetrics.store &&
+    RailsMetrics.store && RailsMetrics.request_root_node &&
     !RailsMetrics::Mute.blacklist.include?(instrumenter_id) &&
     !self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } &&
     !self.ignore_lambdas.values.any? { |b| b.call(name, payload) }

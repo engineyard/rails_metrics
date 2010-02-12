@@ -10,6 +10,11 @@ class ActiveSupport::TestCase
   end
 
   def instrument(*args, &block)
-    ActiveSupport::Notifications.instrument(*args, &block)
+    RailsMetrics.request_root_node = root_node = RailsMetrics::RootNode.new
+    result = ActiveSupport::Notifications.instrument(*args, &block)
+    RailsMetrics.async_consumer.push root_node
+    result
+  ensure
+    RailsMetrics.request_root_node = nil
   end
 end

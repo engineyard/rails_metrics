@@ -95,10 +95,15 @@ module RailsMetrics
     end if defined?(Gem)
 
     # ActiveRecord
-    add "active_record.sql", :except => :connection_id
+    add "active_record.sql" do |payload|
+      payload = payload.dup
+      payload[:sql] = payload[:sql].squeeze(" ")
+      payload.delete(:connection_id)
+      payload
+    end
 
     # ActionController - process action
-    add "action_controller.process_action", :except => :params
+    add "action_controller.process_action", :except => [:params, :db_runtime, :view_runtime]
 
     # ActionView
     add "action_view.render_template", "action_view.render_partial",

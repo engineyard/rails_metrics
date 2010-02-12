@@ -10,15 +10,26 @@ module RailsMetrics
     end
   end
 
-  class AsyncConsumer < ::Queue
+  class AsyncConsumer
     attr_reader :thread
 
     def initialize(&block)
-      @block  = block
+      @off   = true
+      @block = block
+      @queue = Queue.new
+
       @thread = Thread.new do
         set_void_instrumenter
         consume
       end
+    end
+
+    def push(*args)
+      @queue.push(*args)
+    end
+
+    def finished?
+      @queue.empty? && @off
     end
 
   protected
@@ -32,8 +43,10 @@ module RailsMetrics
     end
 
     def consume
-      while args = shift
+      while args = @queue.shift
+        @off = false
         @block.call(args)
+        @off = true
       end
     end
   end    

@@ -15,7 +15,7 @@ module RailsMetrics
     # following setup:
     #
     #   script/generate model Metric script/generate name:string duration:integer
-    #     instrumenter_id:string payload:text started_at:datetime created_at:datetime --skip-timestamps
+    #     instrumenter_id:integer payload:text started_at:datetime created_at:datetime --skip-timestamps
     #
     # You can use any model name you wish. Next, you need to include
     # RailsMetrics::ORM::ActiveRecord:
@@ -33,7 +33,7 @@ module RailsMetrics
         establish_connection(Rails.env)
 
         # Set required validations
-        validates_presence_of :name, :instrumenter_id, :duration, :started_at
+        validates_presence_of :name, :duration, :started_at
 
         # Serialize payload data
         serialize :payload
@@ -43,8 +43,11 @@ module RailsMetrics
         scope :by_instrumenter_id, lambda { |instrumenter_id| where(:instrumenter_id => instrumenter_id) }
 
         # Order scopes
-        scope :earliest, order("started_at ASC")
-        scope :latest,   order("started_at DESC")
+        # We need to add the id in the earliest and latest scope since the database
+        # does not store miliseconds. The id then comes as second criteria, since
+        # the ones started first are first saved in the database.
+        scope :earliest, order("started_at ASC, id ASC")
+        scope :latest,   order("started_at DESC, id DESC")
         scope :slowest,  order("duration DESC")
         scope :fastest,  order("duration ASC")
       end
