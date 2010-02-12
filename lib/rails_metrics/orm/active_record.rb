@@ -1,6 +1,3 @@
-# Mute migration notifications.
-RailsMetrics.mute_class_method!(ActiveRecord::Migrator, :migrate)
-
 # Setup to ignore any query which is not a SELECT, INSERT, UPDATE
 # or DELETE and queries made by the own store.
 RailsMetrics.ignore :invalid_queries do |name, payload|

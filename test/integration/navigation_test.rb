@@ -80,7 +80,7 @@ class NagivationTest < ActionController::IntegrationTest
     assert_contain "ordered by earliest"
 
     click_link "Show"
-    assert_contain "rails_metrics.request"
+    assert_contain "rack.middlewares"
 
     get "/rails_metrics"
     click_link "Order by fastest"

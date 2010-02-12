@@ -4,7 +4,6 @@ Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 module RailsMetrics
   autoload :AsyncConsumer,    'rails_metrics/async_consumer'
   autoload :Middleware,       'rails_metrics/middleware'
-  autoload :Mute,             'rails_metrics/mute'
   autoload :PayloadParser,    'rails_metrics/payload_parser'
   autoload :Store,            'rails_metrics/store'
   autoload :VERSION,          'rails_metrics/version'
@@ -12,10 +11,6 @@ module RailsMetrics
 
   module ORM
     autoload :ActiveRecord, 'rails_metrics/orm/active_record'
-  end
-
-  class << self
-    delegate :mute!, :mute_instance_method!, :mute_class_method!, :to => RailsMetrics::Mute
   end
 
   # Set which store to use in RailsMetrics.
@@ -26,15 +21,33 @@ module RailsMetrics
     metaclass.send :define_method, :store, &block
   end
 
-  # Place holder for the store
+  # Place holder for the store.
   def self.store; end
 
-  def self.request_root_node
-    Thread.current[:rails_metrics_request_root_node]
+  # Holds the events for a specific thread.
+  def self.events
+    Thread.current[:rails_metrics_events] ||= []
   end
 
-  def self.request_root_node=(value)
-    Thread.current[:rails_metrics_request_root_node] = value
+  # Turn RailsMetrics on, i.e. make it listen to notifications during the block.
+  # At the end, it pushes notifications to the async consumer.
+  def self.listen
+    events = RailsMetrics.events
+    events.clear
+
+    Thread.current[:rails_metrics_listening] = true
+    result = yield
+
+    RailsMetrics.async_consumer.push(events.dup)
+    result
+  ensure
+    Thread.current[:rails_metrics_listening] = false
+    RailsMetrics.events.clear
+  end
+
+  # Returns if events are being registered or not.
+  def self.listening?
+    Thread.current[:rails_metrics_listening] || false
   end
 
   class Node
@@ -70,18 +83,6 @@ module RailsMetrics
     end
   end
 
-  class RootNode < Node
-    alias :set_attributes! :initialize
-    public :set_attributes!
-
-    def initialize
-    end
-
-    def root?
-      true
-    end
-  end
-
   # Allow you to specify a condition to ignore a notification based
   # on its name and/or payload. For example, if you want to ignore
   # all notifications with empty payload, one can do:
@@ -112,18 +113,17 @@ module RailsMetrics
 
   # Holds the queue which store stuff in the database.
   def self.async_consumer
-    @@async_consumer ||= AsyncConsumer.new do |root_node|
-      root_node.children.map! { |i| RailsMetrics::Node.new(*i) }
+    @@async_consumer ||= AsyncConsumer.new do |nodes|
+      next if nodes.empty?
 
-      nodes = root_node.children.dup
-      root_node.children.clear
-      nodes.push root_node
+      nodes.map! { |i| RailsMetrics::Node.new(*i) }
+      root_node = nil
 
       while node = nodes.shift
         if parent = nodes.find { |n| n.parent_of?(node) }
           parent.children << node
         else
-          raise "OMG, Node without parent #{node.inspect}" unless nodes.empty?
+          root_node = node
         end
       end
 
@@ -155,10 +155,9 @@ module RailsMetrics
   #   2) If the notification name does not match any ignored pattern;
   #
   def self.valid_for_storing?(args) #:nodoc:
-    name, instrumenter_id, payload = args[0].to_s, args[3], args[4]
+    name, payload = args[0].to_s, args[4]
 
-    RailsMetrics.store && RailsMetrics.request_root_node &&
-    !RailsMetrics::Mute.blacklist.include?(instrumenter_id) &&
+    RailsMetrics.store && RailsMetrics.listening? &&
     !self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } &&
     !self.ignore_lambdas.values.any? { |b| b.call(name, payload) }
   end

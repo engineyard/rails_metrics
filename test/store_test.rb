@@ -3,7 +3,7 @@ require 'test_helper'
 class StoreTest < ActiveSupport::TestCase
   def sample_args
     time = Time.now
-    ["rails_metrics.example", time, time + 10, "i" * 20, { :some => :info }]
+    ["rails_metrics.example", time, time + 10, 1, { :some => :info }]
   end
 
   # We need to mute RailsMetrics, otherwise we get Sqlite3 database lock errors
@@ -24,7 +24,7 @@ class StoreTest < ActiveSupport::TestCase
   end
 
   test "sets the instrumenter id" do
-    assert_equal ("i" * 20), store!.instrumenter_id
+    assert_equal 1, store!.instrumenter_id
   end
 
   test "sets the payload" do

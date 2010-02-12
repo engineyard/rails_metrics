@@ -11,10 +11,9 @@ class InstrumentationTest < ActionController::IntegrationTest
 
     request = Metric.first
 
-    assert_equal "rails_metrics.request", request.name
+    assert_equal "rack.middlewares", request.name
     assert (request.duration >= 0)
     assert_kind_of Time, request.started_at
-    assert_nil request.instrumenter_id
     assert_equal Hash[:path => "/users", :method => "GET",
       :instrumenter_id => ActiveSupport::Notifications.instrumenter.id], request.payload
   end
@@ -46,6 +45,19 @@ class InstrumentationTest < ActionController::IntegrationTest
 
     assert_equal Hash[:identifier => "RAILS_ROOT/app/views/users/index.html.erb",
       :layout => "RAILS_ROOT/app/views/layouts/users.html.erb"], template.payload
+  end
+
+  test "instrumentations are saved nested in the database" do
+    get "/users"
+    wait!
+
+    assert_equal 4, Metric.count
+    request, action, sql, template = Metric.all
+
+    assert_nil request.instrumenter_id
+    assert_equal action.instrumenter_id, request.id
+    assert_equal sql.instrumenter_id, action.id
+    assert_equal template.instrumenter_id, action.id
   end
 
   test "does not create metrics when accessing /rails_metrics" do
