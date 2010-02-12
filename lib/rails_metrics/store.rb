@@ -15,21 +15,33 @@ module RailsMetrics
   module Store
     VALID_ORDERS = %w(earliest latest slowest fastest).freeze
 
-    def store!(args)
-      self.name            = args[0].to_s
-      self.started_at      = args[1]
-      self.duration        = (args[2] - args[1]) * 1000
-      self.instrumenter_id = args[3]
-      self.payload         = RailsMetrics::PayloadParser.filter(name, args[4])
-
-      save_metrics!
-      self
+    def configure(args)
+      self.name       = args[0].to_s
+      self.started_at = args[1]
+      self.duration   = (args[2] - args[1]) * 1000
+      self.payload    = RailsMetrics::PayloadParser.filter(name, args[4])
     end
 
-  protected
+    def children
+      @children ||= []
+    end
 
-    def save_metrics!
-      raise NotImplementedError
+    def parent_of?(node)
+      start = (self.started_at - node.started_at) * 1000
+      start <= 0 && (start + self.duration >= node.duration)
+    end
+
+    def child_of?(node)
+      node.parent_of?(self)
+    end
+
+    def save_metrics!(parent_id=nil)
+      self.instrumenter_id = parent_id
+      save!
+
+      children.each do |child|
+        child.save_metrics!(self.id)
+      end
     end
   end
 end

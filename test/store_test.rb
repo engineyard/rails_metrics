@@ -8,7 +8,9 @@ class StoreTest < ActiveSupport::TestCase
 
   # We need to mute RailsMetrics, otherwise we get Sqlite3 database lock errors
   def store!(args=sample_args)
-    Metric.new.store!(args)
+    metric = Metric.new
+    metric.configure(args)
+    metric
   end
 
   test "sets the name" do
@@ -23,23 +25,11 @@ class StoreTest < ActiveSupport::TestCase
     assert_kind_of Time, store!.started_at
   end
 
-  test "sets the instrumenter id" do
-    assert_equal 1, store!.instrumenter_id
-  end
-
   test "sets the payload" do
     assert_equal Hash[:some => :info], store!.payload
   end
 
-  test "saves the record" do
-    assert_difference "Metric.count" do
-      store!
-    end
-  end
-
-  test "raises an error if cannot be saved" do
-    assert_raise ActiveRecord::RecordInvalid do
-      store!([nil, Time.now, Time.now])
-    end
+  test "does not set the instrumenter id from args" do
+    assert_nil store!.instrumenter_id
   end
 end

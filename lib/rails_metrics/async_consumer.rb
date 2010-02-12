@@ -13,10 +13,10 @@ module RailsMetrics
   class AsyncConsumer
     attr_reader :thread
 
-    def initialize(&block)
+    def initialize(queue=Queue.new, &block)
       @off   = true
       @block = block
-      @queue = Queue.new
+      @queue = queue
 
       @thread = Thread.new do
         set_void_instrumenter

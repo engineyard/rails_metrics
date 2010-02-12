@@ -54,12 +54,6 @@ module RailsMetrics
           self.connection_pool.connections.map(&:object_id)
         end
       end
-
-    protected
-
-      def save_metrics!
-        save!
-      end
     end
   end
 end

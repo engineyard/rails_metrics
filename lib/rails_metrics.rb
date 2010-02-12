@@ -50,39 +50,6 @@ module RailsMetrics
     Thread.current[:rails_metrics_listening] || false
   end
 
-  class Node
-    attr_reader :name, :started_at, :ended_at, :payload
-
-    def initialize(name, started_at, ended_at, transaction_id, payload)
-      @name       = name
-      @started_at = started_at
-      @ended_at   = ended_at
-      @payload    = payload
-      self
-    end
-
-    def root?
-      false
-    end
-
-    def children
-      @children ||= []
-    end
-
-    def duration
-      @duration ||= 1000.0 * (@ended_at - @started_at)
-    end
-
-    def parent_of?(node)
-      start = (self.started_at - node.started_at) * 1000
-      start <= 0 && (start + self.duration >= node.duration)
-    end
-
-    def child_of?(node)
-      node.parent_of?(self)
-    end
-  end
-
   # Allow you to specify a condition to ignore a notification based
   # on its name and/or payload. For example, if you want to ignore
   # all notifications with empty payload, one can do:
@@ -113,31 +80,25 @@ module RailsMetrics
 
   # Holds the queue which store stuff in the database.
   def self.async_consumer
-    @@async_consumer ||= AsyncConsumer.new do |nodes|
-      next if nodes.empty?
-
-      nodes.map! { |i| RailsMetrics::Node.new(*i) }
+    @@async_consumer ||= AsyncConsumer.new do |events|
+      next if events.empty?
       root_node = nil
 
-      while node = nodes.shift
-        if parent = nodes.find { |n| n.parent_of?(node) }
-          parent.children << node
+      metrics = events.map do |event|
+        metric = RailsMetrics.store.new
+        metric.configure(event)
+        metric
+      end
+
+      while metric = metrics.shift
+        if parent = metrics.find { |n| n.parent_of?(metric) }
+          parent.children << metric
         else
-          root_node = node
+          root_metric = metric
         end
       end
 
-      save_nodes!(root_node)
-    end
-  end
-
-  def self.save_nodes!(node, parent_id=nil)
-    metric = RailsMetrics.store.new
-    metric.store!([node.name, node.started_at, node.ended_at, parent_id, node.payload])
-    parent_id = metric.id
-
-    node.children.each do |child|
-      save_nodes!(child, parent_id)
+      root_metric.save_metrics!
     end
   end
 
