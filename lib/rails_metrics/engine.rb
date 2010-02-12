@@ -3,7 +3,7 @@ module RailsMetrics
     engine_name :rails_metrics
 
     # Add middleware
-    config.middleware.use RailsMetrics::Mute::Middleware
+    config.middleware.use RailsMetrics::Middleware
 
     # Initialize configure parameters
     config.rails_metrics.ignore_lambdas  = {}

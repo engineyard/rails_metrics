@@ -3,6 +3,7 @@ Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
 module RailsMetrics
   autoload :AsyncConsumer,    'rails_metrics/async_consumer'
+  autoload :Middleware,       'rails_metrics/middleware'
   autoload :Mute,             'rails_metrics/mute'
   autoload :PayloadParser,    'rails_metrics/payload_parser'
   autoload :Store,            'rails_metrics/store'
@@ -27,11 +28,6 @@ module RailsMetrics
 
   # Place holder for the store
   def self.store; end
-
-  # Instantiate the store and call store!
-  def self.store!(args)
-    self.store.new.store!(args)
-  end
 
   # Allow you to specify a condition to ignore a notification based
   # on its name and/or payload. For example, if you want to ignore
@@ -63,7 +59,7 @@ module RailsMetrics
 
   # Holds the queue which store stuff in the database.
   def self.async_consumer
-    @@async_consumer ||= AsyncConsumer.new { |args| RailsMetrics.store!(args) }
+    @@async_consumer ||= AsyncConsumer.new { |args| RailsMetrics.store.new.store!(args) }
   end
 
   # Wait until the async queue is consumed.

@@ -11,15 +11,6 @@ class StoreTest < ActiveSupport::TestCase
     Metric.new.store!(args)
   end
 
-  setup do
-    RailsMetrics::PayloadParser.add "rails_metrics.example"
-    wait
-  end
-
-  teardown do
-    RailsMetrics::PayloadParser.delete "rails_metrics.example"
-  end
-
   test "sets the name" do
     assert_equal "rails_metrics.example", store!.name
   end

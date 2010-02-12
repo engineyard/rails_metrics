@@ -6,9 +6,10 @@ require "rake/rdoctask"
 require "fileutils"
 require File.expand_path("../lib/rails_metrics/version", __FILE__)
 
-desc "Default: run unit tests."
+desc "Default: run unit tests"
 task :default => :test
 
+desc "Prepare environment for tests"
 task :prepare do
   FileUtils.cd File.expand_path("../test/dummy", __FILE__)
   system("rake db:create:all")

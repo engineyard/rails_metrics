@@ -18,11 +18,23 @@ class AllMetricsTest < ActionController::IntegrationTest
     assert_match /INSERT INTO/, metric.payload[:sql]
   end
 
+  test "rails metrics middleware with instrumentation" do
+    get "/users"
+    wait!
+
+    request = Metric.last
+
+    assert_equal "rails_metrics.request", request.name
+    assert (request.duration >= 0)
+    assert_kind_of Time, request.started_at
+    assert_equal Hash[:path => "/users", :method => "GET"], request.payload
+  end
+
   test "processed actions are added to RailsMetrics" do
     get "/users"
     wait!
 
-    assert_equal 3, Metric.count
+    assert_equal 4, Metric.count
     sql, template, action = Metric.all
 
     assert_equal "action_view.render_template", template.name
@@ -69,7 +81,7 @@ class AllMetricsTest < ActionController::IntegrationTest
     get "users/new"
     wait!
 
-    assert_equal 5, Metric.count
+    assert_equal 6, Metric.count
     partial, exist, write, = Metric.all
 
     assert_equal "action_view.render_partial", partial.name
