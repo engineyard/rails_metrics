@@ -42,8 +42,16 @@ module RailsMetrics
     def configure(args)
       self.name       = args[0].to_s
       self.started_at = args[1]
-      self.duration   = (args[2] - args[1]) * 1000
+      self.duration   = (args[2] - args[1]) * 1000000
       self.payload    = RailsMetrics::PayloadParser.filter(name, args[4])
+    end
+
+    def duration_in_us
+      self.duration
+    end
+
+    def duration_in_ms
+      self.duration * 0.001
     end
 
     def children
@@ -51,7 +59,7 @@ module RailsMetrics
     end
 
     def parent_of?(node)
-      start = (self.started_at - node.started_at) * 1000
+      start = (self.started_at - node.started_at) * 1000000
       start <= 0 && (start + self.duration >= node.duration)
     end
 

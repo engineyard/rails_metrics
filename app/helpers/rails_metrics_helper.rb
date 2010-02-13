@@ -55,11 +55,10 @@ module RailsMetricsHelper
 
   # Link to set a by_scope using the given content. If no value is given,
   # the content is used as link value as well.
-  def link_to_set_by_scope(metric, what, content=nil)
-    value   ||= metric.send(what)
-    content ||= value
-    return content if instance_variable_get(:"@by_#{what}")
-    link_to content, url_for_scope(:"by_#{what}" => value), :title => value
+  def link_to_set_by_scope(metric, what)
+    value = metric.send(what)
+    return value if instance_variable_get(:"@by_#{what}")
+    link_to value, url_for_scope(:"by_#{what}" => value), :title => value
   end
 
   # Link to clear a by_scope using a cancel image.

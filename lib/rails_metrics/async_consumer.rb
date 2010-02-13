@@ -17,6 +17,7 @@ module RailsMetrics
       @off   = true
       @block = block
       @queue = queue
+      @mutex = Mutex.new
 
       @thread = Thread.new do
         set_void_instrumenter
@@ -25,29 +26,29 @@ module RailsMetrics
     end
 
     def push(*args)
+      @mutex.synchronize { @off = false }
       @queue.push(*args)
     end
 
     def finished?
-      @queue.empty? && @off
+      @off
     end
 
   protected
 
-    def set_void_instrumenter
+    def set_void_instrumenter #:nodoc:
       Thread.current[:"instrumentation_#{notifier.object_id}"] = VoidInstrumenter.new(notifier)
     end
 
-    def notifier
+    def notifier #:nodoc:
       ActiveSupport::Notifications.notifier
     end
 
-    def consume
+    def consume #:nodoc:
       while args = @queue.shift
-        @off = false
         @block.call(args)
-        @off = true
+        @mutex.synchronize { @off = @queue.empty? }
       end
     end
-  end    
+  end
 end

@@ -89,7 +89,7 @@ module RailsMetrics
 
   # Wait until the async queue is consumed.
   def self.wait
-    sleep(0.1) until async_consumer.finished?
+    sleep(0.01) until async_consumer.finished?
   end
 
   # A notification is valid for storing if two conditions are met:

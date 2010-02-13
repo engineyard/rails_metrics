@@ -8,7 +8,7 @@ class StoreTest < ActiveSupport::TestCase
 
   def sample_args
     time = Time.now
-    ["rails_metrics.example", time, time + 10, 1, { :some => :info }]
+    ["rails_metrics.example", time, time + 1, 1, { :some => :info }]
   end
 
   def store!(args=sample_args)
@@ -22,7 +22,9 @@ class StoreTest < ActiveSupport::TestCase
   end
 
   test "sets the duration" do
-    assert_equal 10000, store!.duration
+    assert_equal 1000000, store!.duration
+    assert_equal 1000000, store!.duration_in_us
+    assert_equal 1000, store!.duration_in_ms
   end
 
   test "sets started at" do

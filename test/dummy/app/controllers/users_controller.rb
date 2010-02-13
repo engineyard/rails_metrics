@@ -29,6 +29,7 @@ class UsersController < ApplicationController
   # POST /users.xml
   def create
     @user = User.new(params[:user])
+    flash[:notice] = "User was successfully created" if @user.save
     respond_with(@user)
   end
 
@@ -36,6 +37,7 @@ class UsersController < ApplicationController
   # PUT /users/1.xml
   def update
     @user = User.find(params[:id])
+    flash[:notice] = "User was successfully updated" if @user.update_attributes(params[:user])
     respond_with(@user)
   end
 end
