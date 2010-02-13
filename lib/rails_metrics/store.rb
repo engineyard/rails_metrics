@@ -15,6 +15,30 @@ module RailsMetrics
   module Store
     VALID_ORDERS = %w(earliest latest slowest fastest).freeze
 
+    def self.create_tree_from_events(store, events)
+      root_metric = nil
+
+      if store.respond_to?(:verify_active_connections!)
+        store.verify_active_connections!
+      end
+
+      metrics = events.map do |event|
+        metric = store.new
+        metric.configure(event)
+        metric
+      end
+
+      while metric = metrics.shift
+        if parent = metrics.find { |n| n.parent_of?(metric) }
+          parent.children << metric
+        else
+          root_metric = metric
+        end
+      end
+
+      root_metric
+    end
+
     def configure(args)
       self.name       = args[0].to_s
       self.started_at = args[1]

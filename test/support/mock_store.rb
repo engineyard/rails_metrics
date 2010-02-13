@@ -2,7 +2,7 @@ class ActiveSupport::TestCase
   class MockStore
     include RailsMetrics::Store
 
-    attr_accessor :args, :id, :parent_id, :request_id
+    attr_accessor :id, :name, :parent_id, :request_id, :started_at, :duration, :payload
 
     def self.instances
       @instances ||= []
@@ -12,10 +12,6 @@ class ActiveSupport::TestCase
       self.class.instances << self
     end
 
-    def configure(args)
-      @args = args
-    end
-
     def kicked?
       @kicked || false
     end
@@ -23,9 +19,9 @@ class ActiveSupport::TestCase
   protected
 
     def save_metric!
-      self.id = (rand * 1000).to_i
+      self.id ||= (rand * 1000).to_i
 
-      if @args[0] == "rails_metrics.kicker"
+      if self.name == "rails_metrics.kicker"
         @kicked = true
         ActiveSupport::Notifications.instrument("rails_metrics.inside_store")
       end

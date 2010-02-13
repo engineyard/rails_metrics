@@ -82,27 +82,8 @@ module RailsMetrics
   def self.async_consumer
     @@async_consumer ||= AsyncConsumer.new do |events|
       next if events.empty?
-      root_node = nil
-
-      if RailsMetrics.store.respond_to?(:verify_active_connections!)
-        RailsMetrics.store.verify_active_connections!
-      end
-
-      metrics = events.map do |event|
-        metric = RailsMetrics.store.new
-        metric.configure(event)
-        metric
-      end
-
-      while metric = metrics.shift
-        if parent = metrics.find { |n| n.parent_of?(metric) }
-          parent.children << metric
-        else
-          root_metric = metric
-        end
-      end
-
-      root_metric.save_metrics!
+      root = RailsMetrics::Store.create_tree_from_events(store, events)
+      root.save_metrics!
     end
   end
 

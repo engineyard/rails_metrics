@@ -4,8 +4,12 @@ class ActiveSupport::TestCase
   end
 
   def instrument(*args, &block)
-    RailsMetrics.listen do
+    if RailsMetrics.listening?
       ActiveSupport::Notifications.instrument(*args, &block)
+    else
+      RailsMetrics.listen do
+        ActiveSupport::Notifications.instrument(*args, &block)
+      end
     end
   end
 end

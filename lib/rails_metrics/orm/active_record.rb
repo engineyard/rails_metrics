@@ -12,7 +12,7 @@ module RailsMetrics
     # following setup:
     #
     #   script/generate model Metric script/generate name:string duration:integer
-    #     instrumenter_id:integer payload:text started_at:datetime created_at:datetime --skip-timestamps
+    #     request_id:integer parent_id:integer payload:text started_at:datetime created_at:datetime --skip-timestamps
     #
     # You can use any model name you wish. Next, you need to include
     # RailsMetrics::ORM::ActiveRecord:
@@ -30,7 +30,7 @@ module RailsMetrics
         establish_connection(Rails.env)
 
         # Set required validations
-        validates_presence_of :name, :duration, :started_at
+        validates_presence_of :name, :started_at, :duration
 
         # Serialize payload data
         serialize :payload

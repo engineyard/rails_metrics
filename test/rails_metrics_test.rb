@@ -10,12 +10,12 @@ class RailsMetricsTest < ActiveSupport::TestCase
     instrument "rails_metrics.something"
     wait
   
-    assert_equal "rails_metrics.something", MockStore.instances.last.args[0]
+    assert_equal "rails_metrics.something", MockStore.instances.last.name
   end
 
   test "does not send an event to the store if it matches an ignored pattern" do
     RailsMetrics.ignore_patterns << /rails_metrics/
-  
+
     begin
       instrument "rails_metrics.something"
       wait
@@ -30,7 +30,13 @@ class RailsMetricsTest < ActiveSupport::TestCase
     wait
 
     assert_equal 1, MockStore.instances.size
-    assert_equal "rails_metrics.kicker", MockStore.instances.last.args[0]
+    assert_equal "rails_metrics.kicker", MockStore.instances.last.name
     assert MockStore.instances.last.kicked?
+  end
+
+  test "does not send an event if not listening" do
+    ActiveSupport::Notifications.instrument "rails_metrics.kicker"
+    wait
+    assert_equal 0, MockStore.instances.size
   end
 end
