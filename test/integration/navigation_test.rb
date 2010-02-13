@@ -3,10 +3,11 @@ require 'test_helper'
 class NagivationTest < ActionController::IntegrationTest
   setup do
     Metric.delete_all
+    get "/users"
+    wait
   end
 
   test "can navigate notifications" do
-    get "/users" # set up metrics
     get "/rails_metrics"
 
     assert_contain "action_view.render_template"
@@ -31,8 +32,6 @@ class NagivationTest < ActionController::IntegrationTest
   end
 
   test "can navigate with pagination" do
-    get "/users" # set up metrics
-
     get "/rails_metrics"
     assert_contain "Showing 1 - 4 of 4 metrics"
 
@@ -55,7 +54,6 @@ class NagivationTest < ActionController::IntegrationTest
   end
 
   test "can nagivate with by scopes" do
-    get "/users" # set up metrics
     get "/rails_metrics"
 
     click_link "active_record.sql"
@@ -66,8 +64,6 @@ class NagivationTest < ActionController::IntegrationTest
   end
 
   test "can nagivate with order by scopes" do
-    get "/users" # set up metrics
-
     get "/rails_metrics"
     click_link "Order by latest"
     assert_contain "ordered by latest"
@@ -80,7 +76,7 @@ class NagivationTest < ActionController::IntegrationTest
     assert_contain "ordered by earliest"
 
     click_link "Show"
-    assert_contain "rack.middlewares"
+    assert_contain "rack.request"
 
     get "/rails_metrics"
     click_link "Order by fastest"
@@ -91,7 +87,6 @@ class NagivationTest < ActionController::IntegrationTest
   end
 
   test "can destroy all notifications in a given scope" do
-    get "/users" # set up metrics
     get "/rails_metrics"
 
     click_link "active_record.sql"

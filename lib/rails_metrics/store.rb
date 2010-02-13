@@ -35,13 +35,24 @@ module RailsMetrics
       node.parent_of?(self)
     end
 
-    def save_metrics!(parent_id=nil)
-      self.instrumenter_id = parent_id
-      save!
+    def save_metrics!(request_id=nil, parent_id=nil)
+      self.request_id, self.parent_id = request_id, parent_id
+      save_metric!
 
       children.each do |child|
-        child.save_metrics!(self.id)
+        child.save_metrics!(request_id || self.id, self.id)
       end
+
+      unless self.request_id
+        self.request_id ||= self.id
+        save_metric!
+      end
+    end
+
+  protected
+
+    def save_metric!
+      raise NotImplementedError
     end
   end
 end

@@ -7,11 +7,11 @@ class InstrumentationTest < ActionController::IntegrationTest
 
   test "rails metrics request is added to notifications" do
     get "/users"
-    wait!
+    wait
 
     request = Metric.first
 
-    assert_equal "rack.middlewares", request.name
+    assert_equal "rack.request", request.name
     assert (request.duration >= 0)
     assert_kind_of Time, request.started_at
     assert_equal Hash[:path => "/users", :method => "GET",
@@ -20,7 +20,7 @@ class InstrumentationTest < ActionController::IntegrationTest
 
   test "processed actions are added to RailsMetrics" do
     get "/users"
-    wait!
+    wait
 
     assert_equal 4, Metric.count
     request, action, sql, template = Metric.all
@@ -49,27 +49,32 @@ class InstrumentationTest < ActionController::IntegrationTest
 
   test "instrumentations are saved nested in the database" do
     get "/users"
-    wait!
+    wait
 
     assert_equal 4, Metric.count
     request, action, sql, template = Metric.all
 
-    assert_nil request.instrumenter_id
-    assert_equal action.instrumenter_id, request.id
-    assert_equal sql.instrumenter_id, action.id
-    assert_equal template.instrumenter_id, action.id
+    assert_nil request.parent_id
+    assert_equal action.parent_id, request.id
+    assert_equal sql.parent_id, action.id
+    assert_equal template.parent_id, action.id
+
+    assert_equal request.id, request.request_id
+    assert_equal request.id, action.request_id
+    assert_equal request.id, sql.request_id
+    assert_equal request.id, template.request_id
   end
 
   test "does not create metrics when accessing /rails_metrics" do
     assert_no_difference "Metric.count" do
       get "/rails_metrics"
-      wait!
+      wait
     end
   end
 
   test "fragment cache are added to RailsMetrics" do
     get "/users/new"
-    wait!
+    wait
 
     assert_equal 6, Metric.count
     request, action, template, partial, exist, write = Metric.all

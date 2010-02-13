@@ -84,6 +84,10 @@ module RailsMetrics
       next if events.empty?
       root_node = nil
 
+      if RailsMetrics.store.respond_to?(:verify_active_connections!)
+        RailsMetrics.store.verify_active_connections!
+      end
+
       metrics = events.map do |event|
         metric = RailsMetrics.store.new
         metric.configure(event)
@@ -104,7 +108,7 @@ module RailsMetrics
 
   # Wait until the async queue is consumed.
   def self.wait
-    sleep(0.05) until async_consumer.finished?
+    sleep(0.1) until async_consumer.finished?
   end
 
   # A notification is valid for storing if two conditions are met:

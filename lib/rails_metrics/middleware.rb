@@ -9,7 +9,7 @@ module RailsMetrics
         @app.call(env)
       else
         RailsMetrics.listen do
-          response = notifications.instrument "rack.middlewares",
+          response = notifications.instrument "rack.request",
             :path => env["PATH_INFO"], :method => env["REQUEST_METHOD"],
             :instrumenter_id => notifications.instrumenter.id do
             @app.call(env)

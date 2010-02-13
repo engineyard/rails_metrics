@@ -28,8 +28,4 @@ class StoreTest < ActiveSupport::TestCase
   test "sets the payload" do
     assert_equal Hash[:some => :info], store!.payload
   end
-
-  test "does not set the instrumenter id from args" do
-    assert_nil store!.instrumenter_id
-  end
 end

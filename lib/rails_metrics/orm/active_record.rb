@@ -36,8 +36,8 @@ module RailsMetrics
         serialize :payload
 
         # Select scopes
-        scope :by_name,            lambda { |name| where(:name => name) }
-        scope :by_instrumenter_id, lambda { |instrumenter_id| where(:instrumenter_id => instrumenter_id) }
+        scope :by_name,       lambda { |name| where(:name => name) }
+        scope :by_request_id, lambda { |request_id| where(:request_id => request_id) }
 
         # Order scopes
         # We need to add the id in the earliest and latest scope since the database
@@ -53,6 +53,12 @@ module RailsMetrics
         def connections_ids
           self.connection_pool.connections.map(&:object_id)
         end
+      end
+
+    protected
+
+      def save_metric!
+        save!
       end
     end
   end
