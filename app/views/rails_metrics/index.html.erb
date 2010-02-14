@@ -1,30 +1,21 @@
 <% if @metrics.empty? %>
-  <h2>No metrics so far, navigate on your app and come back.</h2>
+  <h2>No requests so far, navigate on your app and come back.</h2>
 <% else %>
   <% content_for(:rails_metrics_header) do %>
-    <%= pagination_and_scopes_info %>
-
-    <% form_tag url_for(params.merge(:action => "destroy_all")), :method => :delete do %>
-      <%= submit_tag "Delete all", :onclick => "return confirm('Are you sure you want to delete those #{@metrics_count} metrics?')" %>
-    <% end %>
+    <%= pagination_and_scopes_info(:requests) %>
   <% end %>
 
-  <table id="rails_metrics_table" class="index">
+  <table id="rails_metrics_table" class="requests">
     <tr>
-      <th>Request<br /><%= link_to_clear_by_scope(:request_id) %></th>
-      <th>Name<br /><%= link_to_clear_by_scope(:name) %></th>
-      <th>Duration<br /><%= link_to_order_by_scopes(:slowest, :fastest) %></th>
-      <th>Payload</th>
       <th>When<br /><%= link_to_order_by_scopes(:earliest, :latest) %></th>
-      <th></th>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Duration<br /><%= link_to_order_by_scopes(:slowest, :fastest) %></th>
       <th></th>
     </tr>
 
-    <%= render :partial => "table_row", :collection => @metrics, :as => :metric %>
+    <%= render :partial => "request", :collection => @metrics, :as => :metric %>
   </table>
 
-  <div id="rails_metrics_footlinks">
-    <p><%= previous_link %> | <%= pagination_info %> | <%= next_link %></p>
-    <p>Show per page: <%= show_per_page [10, 25, 50, 100] %></p>
-  </div>
+  <% paginate! %>
 <% end %>

@@ -3,13 +3,19 @@
 <head>
   <title>RailsMetrics: <%= controller.action_name %></title>
   <%= stylesheet_link_tag 'rails_metrics' %>
+  <%= javascript_include_tag 'rails_metrics/raphael-min', 'rails_metrics/g.raphael-min', 'rails_metrics/g.pie-min', :cache => "rails_metrics.js" %>
 </head>
 <body>
+  <%= content_tag(:div, content_tag(:p, notice), :class => :notice) if notice.present? %>
   <div id="rails_metrics_header">
     <h1><%= link_to "RailsMetrics", rails_metrics_path %></h1>
     <div><%= yield :rails_metrics_header %></div>
+    <p><%= nagivation_links %></p>
   </div>
-  <%= content_tag(:div, notice, :class => :notice) if notice.present? %>
   <%= yield %>
+  <div id="rails_metrics_footlinks">
+    <%= yield :rails_metrics_footlinks %>
+    <p><%= nagivation_links %></p>
+  </div>
 </body>
 </html>

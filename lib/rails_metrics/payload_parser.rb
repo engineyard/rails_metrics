@@ -103,7 +103,11 @@ module RailsMetrics
     end
 
     # ActionController - process action
-    add "action_controller.process_action", :except => [:params, :db_runtime, :view_runtime]
+    add "action_controller.process_action" do |payload|
+      payload = payload.except(:path, :method, :params, :db_runtime, :view_runtime)
+      payload[:end_point] = "#{payload.delete(:controller)}##{payload.delete(:action)}"
+      payload
+    end
 
     # ActionView
     add "action_view.render_template", "action_view.render_partial",

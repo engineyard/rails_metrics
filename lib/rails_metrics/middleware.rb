@@ -8,7 +8,7 @@ module RailsMetrics
       if env["PATH_INFO"] =~ /^\/rails_metrics/
         @app.call(env)
       else
-        RailsMetrics.listen do
+        RailsMetrics.listen_request do
           response = notifications.instrument "rack.request",
             :path => env["PATH_INFO"], :method => env["REQUEST_METHOD"],
             :instrumenter_id => notifications.instrumenter.id do

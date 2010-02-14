@@ -1,0 +1,49 @@
+<% content_for(:rails_metrics_header) do %>
+  Showing request #<%= @request.id %>
+  <div class="actions"><% add_action_links!(@request) %></div>
+<% end %>
+
+<div id="chart_container">
+  <div id="chart"></div>
+</div>
+
+<script type="text/javascript" charset="utf-8"> 
+  var r = Raphael("chart");
+  r.g.text(400, 30, "<%= @request.payload[:method] %> <%= @request.payload[:path] %> at <%= @request.started_at.strftime("%d %b %H:%M:%S") %>").attr({"font-size": 20});
+
+  var pie = r.g.piechart(250, 150, 100,
+    <%=raw @metrics.map { |m| m.exclusive_duration_in_ms }.inspect %>, {
+      legend: <%=raw @metrics.map { |m| "##.# ms - #{m.name}" }.inspect %>,
+      href: <%=raw @metrics.map { |m| "#rails_metric_#{m.id}" }.inspect %>,
+      cut: 0
+    }
+  );
+
+  pie.hover(function () {
+    this.sector.stop();
+    this.sector.scale(1.1, 1.1, this.cx, this.cy);
+    if (this.label) {
+      this.label[0].stop();
+      this.label[0].scale(1.5);
+      this.label[1].attr({"font-weight": 800});
+    }
+  }, function () {
+    this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+    if (this.label) {
+      this.label[0].animate({scale: 1}, 500, "bounce");
+      this.label[1].attr({"font-weight": 400});
+    }
+  });
+</script>
+
+<table id="rails_metrics_table" class="chart">
+  <tr>
+    <th>Name</th>
+    <th>Duration</th>
+    <th>Payload</th>
+    <th></th>
+  </tr>
+
+  <%= render :partial => "row", :collection => @metrics, :as => :metric,
+    :locals => { :skip_timestamps => true } %>
+</table>

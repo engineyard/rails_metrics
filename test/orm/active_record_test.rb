@@ -43,7 +43,8 @@ class ActiveRecordTest < ActiveSupport::TestCase
   end
 
   test "responds to all required named scopes" do
-    [:by_name, :by_request_id, :latest, :earliest, :slowest, :fastest].each do |method|
+    [ :by_name, :by_request_id, :latest,
+      :earliest, :slowest, :fastest, :requests ].each do |method|
       assert_respond_to Metric, method
     end
   end

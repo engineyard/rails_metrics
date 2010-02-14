@@ -31,7 +31,7 @@ module RailsMetrics
 
   # Turn RailsMetrics on, i.e. make it listen to notifications during the block.
   # At the end, it pushes notifications to the async consumer.
-  def self.listen
+  def self.listen_request
     events = RailsMetrics.events
     events.clear
 
@@ -82,7 +82,7 @@ module RailsMetrics
   def self.async_consumer
     @@async_consumer ||= AsyncConsumer.new do |events|
       next if events.empty?
-      root = RailsMetrics::Store.create_tree_from_events(store, events)
+      root = RailsMetrics.store.events_to_metrics_tree(events)
       root.save_metrics!
     end
   end

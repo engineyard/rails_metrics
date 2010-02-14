@@ -1,58 +1,71 @@
 class RailsMetricsController < ApplicationController
   respond_to :html
 
-  # GET /metrics
-  # GET /metrics.xml
+  # GET /rails_metrics
   def index
-    @metrics = scope_store(RailsMetrics.store)
+    @metrics = order_scopes(RailsMetrics.store.requests)
     @metrics_count = @metrics.count
-    @metrics = with_limit_and_offset(@metrics)
+    @metrics = with_pagination(@metrics)
     respond_with(@metrics)
   end
 
-  # GET /metrics/1
-  # GET /metrics/1.xml
+  # GET /rails_metrics/1/chart
+  def chart
+    @metrics = RailsMetrics.store.earliest.by_request_id(params[:id]).all
+    @request = RailsMetrics.store.mount_tree(@metrics.reverse)
+    respond_with(@metrics)
+  end
+
+  # GET /rails_metrics
+  def all
+    @metrics = all_scopes(RailsMetrics.store)
+    @metrics_count = @metrics.count
+    @metrics = with_pagination(@metrics)
+    respond_with(@metrics)
+  end
+
+  # GET /rails_metrics/1
   def show
     @metric = find_store(params[:id])
     respond_with(@metric)
   end
 
-  # DELETE /metrics/1
-  # DELETE /metrics/1.xml
+  # DELETE /rails_metrics/1
   def destroy
     @metric = find_store(params[:id])
     @metric.destroy
     flash[:notice] = "Metric ##{@metric.id} was deleted with success."
-    redirect_to rails_metrics_path
+    respond_with(@metric, :location => rails_metrics_path)
   end
 
-  # DELETE /metrics
-  # DELETE /metrics.xml
+  # DELETE /rails_metrics/destroy_all
   def destroy_all
-    count = scope_store(RailsMetrics.store).delete_all
+    count = all_scopes(RailsMetrics.store).delete_all
     flash[:notice] = "All #{count} selected metrics were deleted."
     redirect_to rails_metrics_path
   end
 
   protected
 
-  def with_limit_and_offset(scope)
+  def with_pagination(scope)
     @limit  = (params[:limit].presence || 50).to_i
     @offset = (params[:offset].presence || 0).to_i
-    @metrics.limit(@limit).offset(@offset).all
+    scope.limit(@limit).offset(@offset).all
   end
 
-  def scope_store(store)
+  def by_scopes(store)
     @by_name = params[:by_name].presence
     store = store.by_name(@by_name) if @by_name
+    store
+  end
 
-    @by_request_id = params[:by_request_id].presence
-    store = store.by_request_id(@by_request_id) if @by_request_id
-
+  def order_scopes(store)
     @order_by = (valid_order_by? ? params[:order_by] : :latest).to_sym
     store = store.send(@order_by)
+  end
 
-    store
+  def all_scopes(store)
+    order_scopes(by_scopes(store))
   end
 
   def valid_order_by?

@@ -1,19 +1,27 @@
-<h3>Viewing metric #<%= @metric.id %></h3>
+<% content_for(:rails_metrics_header) do %>
+  Showing metric #<%= @metric.id %>
+  <div class="actions"><% add_action_links!(@metric) %></div>
+<% end %>
 
 <table id="rails_metrics_table" class="show">
-  <tr class="odd">
-    <td>Request</td>
-    <td><%= link_to_set_by_scope @metric, :request_id %></td>
+  <tr>
+    <th>Key</th>
+    <th>Value</th>
   </tr>
 
-  <tr class="even">
+  <tr class="odd">
     <td>Name</td>
     <td><%= link_to_set_by_scope @metric, :name %></td>
   </tr>
 
+  <tr class="even">
+    <td>Request</td>
+    <td><%= link_to @metric.request_id, chart_rails_metric_path(@metric.request_id) %></td>
+  </tr>
+
   <tr class="odd">
     <td>Duration</td>
-    <td><%= @metric.duration %> ms</td>
+    <td><%= @metric.duration_in_ms %> ms</td>
   </tr>
 
   <tr class="even">
@@ -31,6 +39,3 @@
     <td><%= @metric.created_at %></td>
   </tr>
 </table>
-
-
-<%= link_to 'Back', rails_metrics_path %>

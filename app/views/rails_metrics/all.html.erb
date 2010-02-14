@@ -1,0 +1,25 @@
+<% if @metrics.empty? %>
+  <h2>No metrics so far, navigate on your app and come back.</h2>
+<% else %>
+  <% content_for(:rails_metrics_header) do %>
+    <%= pagination_and_scopes_info(:metrics) %>
+
+    <% form_tag url_for(params.merge(:action => "destroy_all")), :method => :delete do %>
+      <%= submit_tag "Delete all", :onclick => "return confirm('Are you sure you want to delete those #{@metrics_count} metrics?')" %>
+    <% end %>
+  <% end %>
+
+  <table id="rails_metrics_table" class="all">
+    <tr>
+      <th>When<br /><%= link_to_order_by_scopes(:earliest, :latest) %></th>
+      <th>Name<br /><%= link_to_clear_by_scope(:name) %></th>
+      <th>Duration<br /><%= link_to_order_by_scopes(:slowest, :fastest) %></th>
+      <th>Payload</th>
+      <th></th>
+    </tr>
+
+    <%= render :partial => "row", :collection => @metrics, :as => :metric %>
+  </table>
+
+  <% paginate! %>
+<% end %>

@@ -36,6 +36,7 @@ module RailsMetrics
         serialize :payload
 
         # Select scopes
+        scope :requests,      where(:name => "rack.request")
         scope :by_name,       lambda { |name| where(:name => name) }
         scope :by_request_id, lambda { |request_id| where(:request_id => request_id) }
 

@@ -1,0 +1,23 @@
+<% rails_metrics_table_row_for metric do %>
+  <% unless (skip_timestamps ||= false) %>
+    <td class="started_at">
+      <%= metric.started_at.strftime("%d %b %H:%M:%S") %>
+    </td>
+  <% end %>
+
+  <td class="name">
+    <%= link_to_set_by_scope metric, :name %>
+  </td>
+
+  <td class="duration">
+    <%= "%.1f" % metric.duration_in_ms %> ms
+  </td>
+
+  <td class="payload">
+    <%= payload_inspect(metric.payload) %>
+  </td>
+
+  <td class="actions">
+    <% add_action_links!(metric) %>
+  </td>
+<% end %>
