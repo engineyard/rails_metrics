@@ -10,7 +10,7 @@
   </td>
 
   <td class="duration">
-    <%= "%.1f" % metric.duration_in_ms %> ms
+    <%= "%.1f" % metric.duration_in_ms %> <%= "(#{"%.1f" % metric.exclusive_duration_in_ms})" if metric.children.any? %> ms
   </td>
 
   <td class="payload">
