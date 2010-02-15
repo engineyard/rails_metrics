@@ -9,6 +9,8 @@ require "action_mailer/railtie"
 Bundler.require
 require "rails_metrics"
 
+Rails.public_path = File.expand_path("../../../..", __FILE__)
+
 module Dummy
   class Application < Rails::Application
     # Remove this in next release

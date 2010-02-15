@@ -43,7 +43,7 @@ begin
     s.homepage = "http://github.com/engineyard"
     s.description = "Metrics measurement for your app on top of ActiveSupport::Notifications"
     s.authors = ["José Valim"]
-    s.files =  FileList["[A-Z]*", "{app,config,generators,lib}/**/*", "init.rb"]
+    s.files =  FileList["[A-Z]*", "{app,config,lib,public}/**/*"]
   end
 
   Jeweler::GemcutterTasks.new

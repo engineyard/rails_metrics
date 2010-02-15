@@ -37,8 +37,8 @@ class InstrumentationTest < ActionController::IntegrationTest
     assert_kind_of Time, sql.started_at
     assert_kind_of Time, template.started_at
 
-    assert_equal Hash[:formats => [:html], :controller => "UsersController", :method => :get,
-      :action => "index", :path => "/users", :status => 200], action.payload
+    assert_equal Hash[:status=>200, :end_point=>"UsersController#index",
+      :formats=>[:html]], action.payload
 
     assert_equal Hash[:sql => "SELECT `users`.* FROM `users`", 
       :name => "User Load"], sql.payload

@@ -41,12 +41,30 @@ module RailsMetricsHelper
       content = []
 
       hash.each do |key, value|
-        value = value.inspect unless value.is_a?(String)
-        content << (content_tag(:b, key.to_s.humanize).safe_concat("<br />") << value)
+        content << (content_tag(:b, key.to_s.humanize).safe_concat("<br />") << pretty_inspect(value))
       end
 
       content.map!{ |c| content_tag(:p, c) }
       content.join("\n").html_safe
+    end
+
+    # Inspect a value using a more readable format.
+    def pretty_inspect(object)
+      case object
+        when String
+          object
+        when Array
+          "[#{object.map(&:inspect).join(", ")}]"
+        when Hash
+          hash = object.map { |k,v| "  #{k.inspect} => #{pretty_inspect(v)}" }.join(",\n")
+          if object.size == 1
+            "{ #{hash[2..-1]} }"
+          else
+            "{\n#{hash}\n}"
+          end
+        else
+          object.inspect
+      end
     end
   end
 

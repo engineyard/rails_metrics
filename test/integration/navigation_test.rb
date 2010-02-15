@@ -7,8 +7,9 @@ class NagivationTest < ActionController::IntegrationTest
     wait
   end
 
-  test "can navigate notifications" do
+  test "can navigate all notifications" do
     get "/rails_metrics"
+    click_link "All metrics"
 
     assert_contain "action_view.render_template"
     assert_contain "action_controller.process_action"
@@ -16,26 +17,73 @@ class NagivationTest < ActionController::IntegrationTest
 
     id = Metric.last.id
 
-    within Metric.last do
+    within "#rails_metric_#{id}" do
       click_link "Show"
     end
 
     assert_contain "action_view.render_template"
-    click_link "Back"
+    click_link "action_view.render_template"
 
-    within Metric.last do
+    within "#rails_metric_#{id}" do
       click_button "Delete"
     end
 
-    assert_not_contain "action_view.render_template"
     assert_contain "Metric ##{id} was deleted with success"
+
+    get "/rails_metrics/all"
+    assert_not_contain "action_view.render_template"
   end
 
-  test "can navigate with pagination" do
-    get "/rails_metrics"
+  test "can nagivate all metrics with by scopes" do
+    get "/rails_metrics/all"
+
+    click_link "active_record.sql"
+    assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
+
+    click_link "Remove \"Name\" filter"
+    assert_contain "Showing 1 - 4 of 4 metrics"
+  end
+
+  test "can nagivate all metrics with order by scopes" do
+    get "/rails_metrics/all"
+    click_link "Order by latest"
+    assert_contain "ordered by latest"
+
+    click_link "Show"
+    assert_contain "action_view.render_template"
+
+    click_link "Back"
+    click_link "Order by earliest"
+    assert_contain "ordered by earliest"
+
+    click_link "Show"
+    assert_contain "rack.request"
+
+    click_link "Back"
+    click_link "Order by fastest"
+    assert_contain "ordered by fastest"
+
+    click_link "Show"
+    assert_contain Metric.fastest.first.name
+  end
+
+  test "can destroy all notifications in a given scope" do
+    get "/rails_metrics/all"
+    click_link "active_record.sql"
+    assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
+
+    click_button "Delete all"
+    assert_contain "All 1 selected metrics were deleted."
+
+    click_link "All metrics"
+    assert_contain "Showing 1 - 3 of 3 metrics"
+  end
+
+  test "can navigate all metrics with pagination" do
+    get "/rails_metrics/all"
     assert_contain "Showing 1 - 4 of 4 metrics"
 
-    get "/rails_metrics?limit=2"
+    get "/rails_metrics/all?limit=2"
     assert_contain "Showing 1 - 2 of 4 metrics"
 
     click_link "Next"
@@ -51,49 +99,5 @@ class NagivationTest < ActionController::IntegrationTest
     assert_raise Webrat::NotFoundError do
       click_link "Previous"
     end
-  end
-
-  test "can nagivate with by scopes" do
-    get "/rails_metrics"
-
-    click_link "active_record.sql"
-    assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
-
-    click_link "Remove \"Name\" filter"
-    assert_contain "Showing 1 - 4 of 4 metrics"
-  end
-
-  test "can nagivate with order by scopes" do
-    get "/rails_metrics"
-    click_link "Order by latest"
-    assert_contain "ordered by latest"
-
-    click_link "Show"
-    assert_contain "action_view.render_template"
-
-    get "/rails_metrics"
-    click_link "Order by earliest"
-    assert_contain "ordered by earliest"
-
-    click_link "Show"
-    assert_contain "rack.request"
-
-    get "/rails_metrics"
-    click_link "Order by fastest"
-    assert_contain "ordered by fastest"
-
-    click_link "Show"
-    assert_contain Metric.fastest.first.name
-  end
-
-  test "can destroy all notifications in a given scope" do
-    get "/rails_metrics"
-
-    click_link "active_record.sql"
-    assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
-
-    click_button "Delete all"
-    assert_contain "All 1 selected metrics were deleted."
-    assert_contain "Showing 1 - 3 of 3 metrics"
   end
 end

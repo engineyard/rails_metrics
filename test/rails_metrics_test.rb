@@ -10,7 +10,8 @@ class RailsMetricsTest < ActiveSupport::TestCase
     instrument "rails_metrics.something"
     wait
   
-    assert_equal "rails_metrics.something", MockStore.instances.last.name
+    assert_equal 2, MockStore.instances.size
+    assert_equal "rails_metrics.something", MockStore.instances.first.name
   end
 
   test "does not send an event to the store if it matches an ignored pattern" do
@@ -19,7 +20,7 @@ class RailsMetricsTest < ActiveSupport::TestCase
     begin
       instrument "rails_metrics.something"
       wait
-      assert MockStore.instances.empty?
+      assert MockStore.instances.none? { |m| m.name == "rails_metrics.something" }
     ensure
       RailsMetrics.ignore_patterns.pop
     end
@@ -29,9 +30,9 @@ class RailsMetricsTest < ActiveSupport::TestCase
     instrument "rails_metrics.kicker"
     wait
 
-    assert_equal 1, MockStore.instances.size
-    assert_equal "rails_metrics.kicker", MockStore.instances.last.name
-    assert MockStore.instances.last.kicked?
+    assert_equal 2, MockStore.instances.size
+    assert MockStore.instances.first.kicked?
+    assert_equal "rails_metrics.kicker", MockStore.instances.first.name
   end
 
   test "does not send an event if not listening" do

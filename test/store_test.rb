@@ -43,17 +43,13 @@ class StoreTest < ActiveSupport::TestCase
 
     instrument "rails_metrics.another"
 
-    assert_equal 3, MockStore.instances.size
-    child, parent, another = MockStore.instances
+    assert_equal 5, MockStore.instances.size
+    child, parent, request, another, another_request = MockStore.instances
 
-    assert_equal "rails_metrics.child", child.name
-    assert_equal "rails_metrics.parent", parent.name
-
-    assert_equal 1, parent.children.size
-    assert_equal child, parent.children.first
-
-    assert_equal parent.id, parent.request_id
-    assert_equal parent.id, child.request_id
+    assert_equal request.id, request.request_id
+    assert_equal request.id, parent.request_id
+    assert_equal request.id, parent.parent_id
+    assert_equal request.id, child.request_id
     assert_equal parent.id, child.parent_id
 
     assert parent.parent_of?(child)
@@ -63,5 +59,23 @@ class StoreTest < ActiveSupport::TestCase
     assert !another.parent_of?(parent)
     assert !parent.child_of?(another)
     assert !another.child_of?(parent)
+  end
+
+  test "tree can be created from nested instrumentations" do
+    instrument "rails_metrics.parent" do
+      instrument "rails_metrics.child" do
+      end
+    end
+
+    child, parent, request = MockStore.instances
+    root = RailsMetrics.store.mount_tree(MockStore.instances)
+
+    assert_equal "rails_metrics.child", child.name
+    assert_equal "rails_metrics.parent", parent.name
+    assert_equal "rack.request", request.name
+
+    assert root.rack_request?
+    assert [parent], root.children
+    assert [child], parent.children
   end
 end

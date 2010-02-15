@@ -3,7 +3,7 @@
 <head>
   <title>RailsMetrics: <%= controller.action_name %></title>
   <%= stylesheet_link_tag 'rails_metrics' %>
-  <%= javascript_include_tag 'rails_metrics/raphael-min', 'rails_metrics/g.raphael-min', 'rails_metrics/g.pie-min', :cache => "rails_metrics.js" %>
+  <%= javascript_include_tag 'rails_metrics/raphael-min', 'rails_metrics/g.raphael-min', 'rails_metrics/g.pie-min', :cache => "rails_metrics" %>
 </head>
 <body>
   <%= content_tag(:div, content_tag(:p, notice), :class => :notice) if notice.present? %>

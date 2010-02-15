@@ -16,6 +16,10 @@ class ActiveSupport::TestCase
       @kicked || false
     end
 
+    def new_record?
+      true
+    end
+
   protected
 
     def save_metric!
