@@ -48,7 +48,6 @@ Gem::Specification.new do |s|
      "public/images/rails_metrics/page_white_delete.png",
      "public/images/rails_metrics/page_white_go.png",
      "public/images/rails_metrics/tick.png",
-     "public/javascripts/rails_metrics.js",
      "public/javascripts/rails_metrics/g.pie-min.js",
      "public/javascripts/rails_metrics/g.raphael-min.js",
      "public/javascripts/rails_metrics/raphael-min.js",

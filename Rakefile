@@ -49,6 +49,7 @@ begin
     s.description = "Metrics measurement for your app on top of ActiveSupport::Notifications"
     s.authors = ["José Valim"]
     s.files =  FileList["[A-Z]*", "{app,config,lib,public}/**/*"]
+    s.files.exclude("public/javascripts/rails_metrics.js")
   end
 
   Jeweler::GemcutterTasks.new

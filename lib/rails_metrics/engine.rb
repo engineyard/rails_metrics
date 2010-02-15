@@ -25,10 +25,5 @@ module RailsMetrics
         RailsMetrics.events.push(args) if RailsMetrics.valid_for_storing?(args)
       end
     end
-
-    config.after_initialize do
-      # Ensure the store is loaded right after initialization
-      RailsMetrics.store
-    end
   end
 end

@@ -103,7 +103,7 @@ module RailsMetrics
   def self.valid_for_storing?(args) #:nodoc:
     name, payload = args[0].to_s, args[4]
 
-    RailsMetrics.store && RailsMetrics.listening? &&
+    RailsMetrics.listening? && RailsMetrics.store &&
     !self.ignore_patterns.find { |p| String === p ? name == p : name =~ p } &&
     !self.ignore_lambdas.values.any? { |b| b.call(name, payload) }
   end
