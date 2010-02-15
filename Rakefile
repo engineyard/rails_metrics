@@ -17,6 +17,11 @@ task :prepare do
   system("rake db:test:clone")
 end
 
+desc "Start the server for the dummy application used in tests"
+task :server do
+  exec("test/dummy/script/rails server")
+end
+
 desc "Test RailsMetrics"
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
