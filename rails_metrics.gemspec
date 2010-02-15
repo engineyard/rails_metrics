@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rails_metrics}
-  s.version = "0.0.1"
+  s.version = "0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jos\303\251 Valim"]
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
      "MIT-LICENSE",
      "README.rdoc",
      "Rakefile",
+     "TODO.rdoc",
      "app/controllers/rails_metrics_controller.rb",
      "app/helpers/rails_metrics_helper.rb",
      "app/views/layouts/rails_metrics.html.erb",
@@ -31,6 +32,7 @@ Gem::Specification.new do |s|
      "app/views/rails_metrics/index.html.erb",
      "app/views/rails_metrics/show.html.erb",
      "config/routes.rb",
+     "lib/generators/rails_metrics_generator.rb",
      "lib/rails_metrics.rb",
      "lib/rails_metrics/async_consumer.rb",
      "lib/rails_metrics/engine.rb",
@@ -46,7 +48,7 @@ Gem::Specification.new do |s|
      "public/images/rails_metrics/page_white_delete.png",
      "public/images/rails_metrics/page_white_go.png",
      "public/images/rails_metrics/tick.png",
-     "public/javascripts/rails_metrics.js.js",
+     "public/javascripts/rails_metrics.js",
      "public/javascripts/rails_metrics/g.pie-min.js",
      "public/javascripts/rails_metrics/g.raphael-min.js",
      "public/javascripts/rails_metrics/raphael-min.js",

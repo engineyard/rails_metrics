@@ -1,0 +1,58 @@
+== RailsMetrics
+
+RailsMetrics is an engine that hooks into your application to listen ActiveSupport::Notifications and show you statistics about them. RailsMetrics uses threads to save those notifications in the database through an in-process Queue. You can see charts based on each request and see what queries, actions, templates rendering, etc. are slow.
+
+So far RailsMetrics supports only ActiveRecord as ORM but adding other datastore should be easy (take a look at lib/rails_metrics/orm/active_record.rb). Due to the threaded behavior in RailsMetrics, you cannot use SQLite as database, however MySQL and PostgreSQL work fine.
+
+There's an example application at http://github.com/engineyard/rails_metrics_example .
+
+== Installation
+
+Installing RailsMetrics is simple. Since it's a Rails::Engine, you need to install it as gem:
+
+  gem install rails_metrics
+
+Then add it to your gemfile. So far, I recommend you to install it only on development:
+
+  group :development do
+    gem "rails_metrics"
+  end
+
+Finally, create your model using the built-in generator:
+
+  rails g rails_metrics Metric
+
+You can choose another name than Metric as your rails metrics store. Run the created migration, restart your server and now you should be able to access "/rails_metrics". Navigate on your application and head back to "/rails_metrics" to see the stored data.
+
+== Configuration
+
+There are three parameters you can add to your application to configure RailsMetrics. The first one is to set the RailsMetrics store, which is done automatically when you use the generator:
+
+  config.rails_metrics.set_store = lambda { ::Metric }
+
+The other parameters allows you to ignore an specific notification, based on a given block
+or on its name. Let's suppose you have a plugin in your application which is yielding an useless notification. You can silence it by doing:
+
+  config.rails_metrics.ignore_patterns << /verbose_plugin/
+
+If you need to ignore a notification based on its payload, it's also easy:
+
+  config.rails_metrics.ignore_lambdas[:verbose_plugin] = lambda { |name, payload|
+    payload[:some_value] =~ /some_expression/
+  }
+
+== TODO
+
+Please refer to TODO file.
+
+== Maintainers
+
+* José Valim (http://github.com/josevalim)
+
+== Bugs and Feedback
+
+If you discover any bugs or want to drop a line, feel free to create an issue on GitHub.
+
+http://github.com/engineyard/rails_metrics/issues
+
+MIT License. Copyright 2010 Engine Yard. http://www.engineyard.com
