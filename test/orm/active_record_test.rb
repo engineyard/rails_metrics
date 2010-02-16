@@ -5,14 +5,6 @@ class ActiveRecordTest < ActiveSupport::TestCase
     Metric.delete_all
   end
 
-  test "does not store own queries as notifications" do
-    instrument "test.event" do
-      Metric.all
-    end
-    wait
-    assert_equal 2, Metric.all.count # one for test.event and other for rack.request
-  end
-
   test "does not store queries other than SELECT, INSERT, UPDATE and DELETE" do
     instrument "test.event" do
       User.connection.send(:select, "SHOW tables;")

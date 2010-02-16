@@ -2,8 +2,7 @@
 # or DELETE and queries made by the own store.
 RailsMetrics.ignore :invalid_queries do |name, payload|
   name == "active_record.sql" &&
-    (payload[:sql] !~ /^(SELECT|INSERT|UPDATE|DELETE)/ ||
-    RailsMetrics.store.connections_ids.include?(payload[:connection_id]))
+    payload[:sql] !~ /^(SELECT|INSERT|UPDATE|DELETE)/
 end
 
 module RailsMetrics
@@ -48,12 +47,6 @@ module RailsMetrics
         scope :latest,   order("started_at DESC, id DESC")
         scope :slowest,  order("duration DESC")
         scope :fastest,  order("duration ASC")
-      end
-
-      module ClassMethods
-        def connections_ids
-          self.connection_pool.connections.map(&:object_id)
-        end
       end
 
     protected
