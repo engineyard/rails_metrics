@@ -41,6 +41,18 @@ If you need to ignore a notification based on its payload, it's also easy:
     payload[:some_value] =~ /some_expression/
   }
 
+== Running the test suite
+
+To run the test suite, please execute the following commands on the project root:
+
+  1) gem install bundler
+
+  2) bundle install
+
+  3) rake prepare
+
+  4) rake test
+
 == TODO
 
 Please refer to TODO file.

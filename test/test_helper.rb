@@ -1,13 +1,6 @@
 # Configure Rails Envinronment
 ENV["RAILS_ENV"] = "test"
 
-# To test RailsMetrics, you need to:
-#
-#   1) Install latest bundler with "gem install bundler"
-#   2) bundle install
-#   3) rake prepare
-#   4) rake test
-#
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
 require "rails/test_help"
 
