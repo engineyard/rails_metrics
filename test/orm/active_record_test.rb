@@ -6,15 +6,19 @@ class ActiveRecordTest < ActiveSupport::TestCase
   end
 
   test "does not store own queries as notifications" do
-    Metric.all
+    instrument "test.event" do
+      Metric.all
+    end
     wait
-    assert Metric.all.empty?
+    assert_equal 2, Metric.all.count # one for test.event and other for rack.request
   end
 
   test "does not store queries other than SELECT, INSERT, UPDATE and DELETE" do
-    User.connection.send(:select, "SHOW tables;")
+    instrument "test.event" do
+      User.connection.send(:select, "SHOW tables;")
+    end
     wait
-    assert Metric.all.empty?
+    assert_equal 2, Metric.all.count # one for test.event and other for rack.request
   end
 
   test "serializes payload" do
