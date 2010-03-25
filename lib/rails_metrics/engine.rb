@@ -2,12 +2,13 @@ module RailsMetrics
   class Engine < ::Rails::Engine
     engine_name :rails_metrics
 
-    # Add middleware
-    config.middleware.use RailsMetrics::Middleware
-
     # Initialize configure parameters
     config.rails_metrics.ignore_lambdas  = {}
     config.rails_metrics.ignore_patterns = [ "action_controller.start_processing" ]
+
+    initializer "rails_metrics.add_middleware" do |app|
+      app.config.middleware.use RailsMetrics::Middleware
+    end
 
     initializer "rails_metrics.set_ignores" do |app|
       RailsMetrics.ignore_lambdas.merge!(app.config.rails_metrics.ignore_lambdas)
@@ -21,7 +22,7 @@ module RailsMetrics
     end
 
     initializer "rails_metrics.start_subscriber" do
-      ActiveSupport::Notifications.subscribe do |*args|
+      ActiveSupport::Notifications.subscribe /[^!]$/ do |*args|
         RailsMetrics.events.push(args) if RailsMetrics.valid_for_storing?(args)
       end
     end
