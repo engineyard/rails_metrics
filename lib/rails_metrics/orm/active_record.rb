@@ -20,6 +20,26 @@ module RailsMetrics
     #     include RailsMetrics::ORM::ActiveRecord
     #   end
     #
+
+    ORM.primary_key_finder = :find
+    ORM.delete_all         = :delete_all
+
+    ORM.metric_model_properties = %w[
+      name:string
+      duration:integer
+      request_id:integer
+      parent_id:integer
+      payload:text
+      started_at:datetime
+      created_at:datetime
+    ]
+
+    def self.add_metric_model_config(generator, file_name, class_name)
+      generator.inject_into_class "app/models/#{file_name}.rb", class_name, <<-CONTENT
+        include RailsMetrics::ORM::#{Rails::Generators.options[:rails][:orm].to_s.camelize}
+      CONTENT
+    end
+
     module ActiveRecord
       extend  ActiveSupport::Concern
       include RailsMetrics::Store

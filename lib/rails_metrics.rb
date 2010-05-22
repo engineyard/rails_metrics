@@ -1,4 +1,6 @@
 require 'active_support/core_ext/module/delegation'
+require 'active_support/core_ext/class/attribute'
+
 Thread.abort_on_exception = Rails.env.development? || Rails.env.test?
 
 module RailsMetrics
@@ -11,6 +13,13 @@ module RailsMetrics
 
   module ORM
     autoload :ActiveRecord, 'rails_metrics/orm/active_record'
+    autoload :DataMapper,   'rails_metrics/orm/data_mapper'
+
+    class << self
+      class_attribute :primary_key_finder
+      class_attribute :delete_all
+      class_attribute :metric_model_properties
+    end
   end
 
   # Set which store to use in RailsMetrics.

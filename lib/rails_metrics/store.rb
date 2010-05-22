@@ -89,7 +89,7 @@ module RailsMetrics
     # However, if it was already saved, we lose microseconds information from
     # timestamps and we must rely solely in id and parent_id information.
     def parent_of?(node)
-      if new_record?
+      if !persisted?
         start = (self.started_at - node.started_at) * 1000000
         start <= 0 && (start + self.duration >= node.duration)
       else

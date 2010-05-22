@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
      "lib/rails_metrics/engine.rb",
      "lib/rails_metrics/middleware.rb",
      "lib/rails_metrics/orm/active_record.rb",
+     "lib/rails_metrics/orm/data_mapper.rb",
      "lib/rails_metrics/payload_parser.rb",
      "lib/rails_metrics/store.rb",
      "lib/rails_metrics/version.rb",

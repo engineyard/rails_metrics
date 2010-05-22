@@ -40,7 +40,7 @@ class RailsMetricsController < ApplicationController
 
   # DELETE /rails_metrics/destroy_all
   def destroy_all
-    count = all_scopes(RailsMetrics.store).delete_all
+    count = all_scopes(RailsMetrics.store).send(RailsMetrics::ORM.delete_all)
     flash[:notice] = "All #{count} selected metrics were deleted."
     redirect_to rails_metrics_path
   end
@@ -50,7 +50,11 @@ class RailsMetricsController < ApplicationController
   def with_pagination(scope)
     @limit  = (params[:limit].presence || 50).to_i
     @offset = (params[:offset].presence || 0).to_i
-    scope.limit(@limit).offset(@offset).all
+    if scope.respond_to?(:limit)
+      scope.limit(@limit).offset(@offset).all
+    else
+      scope.all(:limit => @limit, :offset => @offset)
+    end
   end
 
   def by_scopes(store)
@@ -73,6 +77,6 @@ class RailsMetricsController < ApplicationController
   end
 
   def find_store(id)
-    RailsMetrics.store.find(id)
+    RailsMetrics.store.send(RailsMetrics::ORM.primary_key_finder, id)
   end
 end
