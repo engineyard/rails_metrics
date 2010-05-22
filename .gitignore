@@ -8,3 +8,5 @@ test/dummy/db/schema.rb
 pkg
 log/*
 public/javascripts/rails_metrics.js
+.bundle
+
