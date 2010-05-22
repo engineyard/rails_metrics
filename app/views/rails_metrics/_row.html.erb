@@ -1,4 +1,4 @@
-<% rails_metrics_table_row_for metric do %>
+<%= rails_metrics_table_row_for metric do %>
   <% unless (skip_timestamps ||= false) %>
     <td class="started_at">
       <%= metric.started_at.strftime("%d %b %H:%M:%S") %>

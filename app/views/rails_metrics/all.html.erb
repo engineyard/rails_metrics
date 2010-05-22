@@ -4,7 +4,7 @@
   <% content_for(:rails_metrics_header) do %>
     <%= pagination_and_scopes_info(:metrics) %>
 
-    <% form_tag url_for(params.merge(:action => "destroy_all")), :method => :delete do %>
+    <%= form_tag url_for(params.merge(:action => "destroy_all")), :method => :delete do %>
       <%= submit_tag "Delete all", :onclick => "return confirm('Are you sure you want to delete those #{@metrics_count} metrics?')" %>
     <% end %>
   <% end %>

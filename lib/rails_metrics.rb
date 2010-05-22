@@ -18,7 +18,7 @@ module RailsMetrics
   #   RailsMetrics.set_store { Metric }
   #
   def self.set_store(&block)
-    metaclass.send :define_method, :store, &block
+    singleton_class.send :define_method, :store, &block
   end
 
   # Place holder for the store.

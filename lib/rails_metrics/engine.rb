@@ -1,8 +1,9 @@
 module RailsMetrics
   class Engine < ::Rails::Engine
-    engine_name :rails_metrics
 
     # Initialize configure parameters
+    config.rails_metrics = ActiveSupport::OrderedOptions.new
+
     config.rails_metrics.ignore_lambdas  = {}
     config.rails_metrics.ignore_patterns = [ "action_controller.start_processing" ]
 
