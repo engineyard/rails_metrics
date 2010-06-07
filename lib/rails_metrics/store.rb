@@ -49,10 +49,10 @@ module RailsMetrics
     # Configure the current metric by setting the values yielded by
     # the instrumentation event.
     def configure(args)
+      self.payload    = RailsMetrics::PayloadParser.filter(name, args[4])
       self.name       = args[0].to_s
       self.started_at = args[1]
-      self.duration   = (args[2] - args[1]) * 1000000
-      self.payload    = RailsMetrics::PayloadParser.filter(name, args[4])
+      self.duration   = normalized_duration(self.payload, args)
     end
 
     def duration_in_us
@@ -128,5 +128,10 @@ module RailsMetrics
     def save_metric!
       raise NotImplementedError
     end
+
+    def normalized_duration(payload, args)
+      payload[:duration] ? payload[:duration] : (args[2] - args[1]) * 1000000
+    end
+
   end
 end
