@@ -28,8 +28,8 @@ module RailsMetricsHelper
     # Add pagination to footlinks
     def paginate!
       content_for :rails_metrics_footlinks do
-        content_tag(:p, [previous_link, pagination_info, next_link].join(" | ")) <<
-        content_tag(:p, "Show per page: #{show_per_page [10, 25, 50, 100]}")
+        content_tag(:p, [previous_link, pagination_info, next_link].join(" | "),nil,false) <<
+        content_tag(:p, "Show per page: #{show_per_page([10, 25, 50, 100])}",nil,false)
       end
     end
   end
