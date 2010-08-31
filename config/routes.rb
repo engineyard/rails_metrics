@@ -1,7 +1,10 @@
-Rails::Application.routes.draw do |map|
+Rails.application.routes.draw do
   resources :rails_metrics, :only => [:index, :show, :destroy] do
-    get :all, :on => :collection
+    collection do
+      get :all
+      delete :destroy_all
+    end
+
     get :chart, :on => :member
-    delete :destroy_all, :on => :collection
   end
 end
