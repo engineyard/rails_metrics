@@ -2,7 +2,7 @@
 
 require "rake"
 require "rake/testtask"
-require "rake/rdoctask"
+require "rdoc/task"
 require "fileutils"
 require File.expand_path("../lib/rails_metrics/version", __FILE__)
 
@@ -30,7 +30,7 @@ Rake::TestTask.new(:test) do |t|
 end
 
 desc "Generate documentation for RailsMetrics"
-Rake::RDocTask.new(:rdoc) do |rdoc|
+RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = "rdoc"
   rdoc.title    = "RailsMetrics"
   rdoc.options << "--line-numbers" << "--inline-source"
