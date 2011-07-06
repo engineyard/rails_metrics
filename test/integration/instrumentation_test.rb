@@ -2,6 +2,10 @@ require 'test_helper'
 
 class InstrumentationTest < ActionController::IntegrationTest
   setup do
+    ActiveSupport::Notifications.subscribe /[^!]$/ do |*args|
+      RailsMetrics.events.push(args) if RailsMetrics.valid_for_storing?(args)
+    end
+
     Metric.delete_all
   end
 
@@ -25,9 +29,9 @@ class InstrumentationTest < ActionController::IntegrationTest
     assert_equal 4, Metric.count
     request, action, sql, template = Metric.all
 
-    assert_equal "action_controller.process_action", action.name
-    assert_equal "active_record.sql", sql.name
-    assert_equal "action_view.render_template", template.name
+    assert_equal "process_action.action_controller", action.name
+    assert_equal "sql.active_record", sql.name
+    assert_equal "render_template.action_view", template.name
 
     assert (action.duration >= 0)
     assert (sql.duration >= 0)
@@ -44,7 +48,7 @@ class InstrumentationTest < ActionController::IntegrationTest
       :name => "User Load"], sql.payload
 
     assert_equal Hash[:identifier => "RAILS_ROOT/app/views/users/index.html.erb",
-      :layout => "RAILS_ROOT/app/views/layouts/users.html.erb"], template.payload
+      :layout => "layouts/users"], template.payload
   end
 
   test "instrumentations are saved nested in the database" do
@@ -79,9 +83,9 @@ class InstrumentationTest < ActionController::IntegrationTest
     assert_equal 6, Metric.count
     request, action, template, partial, exist, write = Metric.all
 
-    assert_equal "action_view.render_partial", partial.name
-    assert_equal "action_controller.exist_fragment?", exist.name
-    assert_equal "action_controller.write_fragment", write.name
+    assert_equal "render_partial.action_view", partial.name
+    assert_equal "exist_fragment?.action_controller", exist.name
+    assert_equal "write_fragment.action_controller", write.name
 
     assert (partial.duration >= 0)
     assert (exist.duration >= 0)

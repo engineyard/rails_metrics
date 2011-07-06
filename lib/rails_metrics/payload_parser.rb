@@ -5,21 +5,21 @@ module RailsMetrics
   # By default, RailsMetrics stores the whole payload in the database but it allows
   # you to manipulate it or even ignore some through the add and ignore methods.
   #
-  # For example, "activerecord.sql" has as paylaod a hash with :name (like "Product
+  # For example, "sql.activerecord" has as paylaod a hash with :name (like "Product
   # Load"), the :sql to be performed and the :connection_id. We can remove the connection
   # from the hash by simply providing :except:
   #
-  #   RailsMetrics::PayloadParser.add "active_record.sql", :except => :name
+  #   RailsMetrics::PayloadParser.add "sql.active_record", :except => :name
   #
   # Or, we could also:
   #
-  #   RailsMetrics::PayloadParser.add "active_record.sql", :slice => [:name, :sql]
+  #   RailsMetrics::PayloadParser.add "sql.active_record", :slice => [:name, :sql]
   #
   # Finally, in some cases manipulating the hash is not enough and you might need
-  # to customize it further, as in "action_view.render_template". You can do
+  # to customize it further, as in "render_template.action_view". You can do
   # that by giving a block which will receive the payload as argument:
   #
-  #   RailsMetrics::PayloadParser.add "action_view.render_template" do |payload|
+  #   RailsMetrics::PayloadParser.add "render_template.action_view" do |payload|
   #     payload = payload.dup
   #     payload[:template] = payload[:template].gsub("RAILS_ROOT", Rails.root)
   #     payload
@@ -30,7 +30,7 @@ module RailsMetrics
   #
   # If you want to ignore any payload, you can use the ignore method:
   #
-  #   RailsMetrics::PayloadParser.ignore "active_record.sql"
+  #   RailsMetrics::PayloadParser.ignore "sql.active_record"
   #
   module PayloadParser
     # Holds the parsers used by RailsMetrics.
@@ -95,7 +95,7 @@ module RailsMetrics
     end if defined?(Gem)
 
     # ActiveRecord
-    add "active_record.sql" do |payload|
+    add "sql.active_record" do |payload|
       payload = payload.dup
       payload[:sql] = payload[:sql].squeeze(" ")
       payload.delete(:connection_id)
@@ -103,16 +103,16 @@ module RailsMetrics
     end
 
     # ActionController - process action
-    add "action_controller.process_action" do |payload|
+    add "process_action.action_controller" do |payload|
       payload = payload.except(:path, :method, :params, :db_runtime, :view_runtime)
       payload[:end_point] = "#{payload.delete(:controller)}##{payload.delete(:action)}"
       payload
     end
 
     # ActionView
-    add "action_view.render_template", "action_view.render_partial",
-        "action_view.render_collection" do |payload|
-      returning Hash.new do |new_payload|
+    add "render_template.action_view", "render_partial.action_view",
+        "render_collection.action_view" do |payload|
+      Hash.new.tap do |new_payload|
         payload.each do |key, value|
           case value
           when NilClass
@@ -126,6 +126,6 @@ module RailsMetrics
     end
 
     # ActionMailer
-    add "action_mailer.deliver", "action_mailer.receive", :except => :mail
+    add "deliver.action_mailer", "receive.action_mailer", :except => :mail
   end
 end

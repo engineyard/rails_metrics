@@ -49,8 +49,8 @@ module RailsMetrics
     # Configure the current metric by setting the values yielded by
     # the instrumentation event.
     def configure(args)
-      self.payload    = RailsMetrics::PayloadParser.filter(name, args[4])
       self.name       = args[0].to_s
+      self.payload    = RailsMetrics::PayloadParser.filter(self.name, args[4])
       self.started_at = args[1]
       self.duration   = normalized_duration(self.payload, args)
     end

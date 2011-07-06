@@ -20,6 +20,10 @@ class ActiveSupport::TestCase
       true
     end
 
+    def persisted?
+      false
+    end
+
   protected
 
     def save_metric!
