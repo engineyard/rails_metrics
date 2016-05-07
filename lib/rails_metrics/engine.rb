@@ -5,7 +5,7 @@ module RailsMetrics
     config.rails_metrics = ActiveSupport::OrderedOptions.new
 
     config.rails_metrics.ignore_lambdas  = {}
-    config.rails_metrics.ignore_patterns = [ "action_controller.start_processing" ]
+    config.rails_metrics.ignore_patterns = [ "start_processing.action_controller", "!render_template.action_view" ]
 
     initializer "rails_metrics.add_middleware" do |app|
       app.config.middleware.use RailsMetrics::Middleware

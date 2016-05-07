@@ -2,7 +2,12 @@ require 'test_helper'
 
 class NagivationTest < ActionController::IntegrationTest
   setup do
+    ActiveSupport::Notifications.subscribe /[^!]$/ do |*args|
+      RailsMetrics.events.push(args) if RailsMetrics.valid_for_storing?(args)
+    end
+
     Metric.delete_all
+
     get "/users"
     wait
   end
@@ -11,8 +16,8 @@ class NagivationTest < ActionController::IntegrationTest
     get "/rails_metrics"
     click_link "All metrics"
 
-    assert_contain "action_view.render_template"
-    assert_contain "action_controller.process_action"
+    assert_contain "render_template.action_view"
+    assert_contain "process_action.action_controller"
     assert_contain ActiveSupport::Notifications.instrumenter.id
 
     id = Metric.last.id
@@ -21,8 +26,8 @@ class NagivationTest < ActionController::IntegrationTest
       click_link "Show"
     end
 
-    assert_contain "action_view.render_template"
-    click_link "action_view.render_template"
+    assert_contain "render_template.action_view"
+    click_link "render_template.action_view"
 
     within "#rails_metric_#{id}" do
       click_button "Delete"
@@ -31,13 +36,13 @@ class NagivationTest < ActionController::IntegrationTest
     assert_contain "Metric ##{id} was deleted with success"
 
     get "/rails_metrics/all"
-    assert_not_contain "action_view.render_template"
+    assert_not_contain "render_template.action_view"
   end
 
   test "can nagivate all metrics with by scopes" do
     get "/rails_metrics/all"
 
-    click_link "active_record.sql"
+    click_link "sql.active_record"
     assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
 
     click_link "Remove \"Name\" filter"
@@ -50,7 +55,7 @@ class NagivationTest < ActionController::IntegrationTest
     assert_contain "ordered by latest"
 
     click_link "Show"
-    assert_contain "action_view.render_template"
+    assert_contain "render_template.action_view"
 
     click_link "Back"
     click_link "Order by earliest"
@@ -69,7 +74,7 @@ class NagivationTest < ActionController::IntegrationTest
 
   test "can destroy all notifications in a given scope" do
     get "/rails_metrics/all"
-    click_link "active_record.sql"
+    click_link "sql.active_record"
     assert_contain "Showing 1 - 1 of 1 metrics filtered by name"
 
     click_button "Delete all"

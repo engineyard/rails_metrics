@@ -1,7 +1,7 @@
 # Setup to ignore any query which is not a SELECT, INSERT, UPDATE
 # or DELETE and queries made by the own store.
 RailsMetrics.ignore :invalid_queries do |name, payload|
-  name == "active_record.sql" &&
+  name == "sql.active_record" &&
     payload[:sql] !~ /^(SELECT|INSERT|UPDATE|DELETE)/
 end
 
@@ -10,7 +10,7 @@ module RailsMetrics
     # Include in your model to store metrics. For ActiveRecord, you need the
     # following setup:
     #
-    #   script/generate model Metric script/generate name:string duration:integer
+    #   script/generate model Metric name:string duration:integer
     #     request_id:integer parent_id:integer payload:text started_at:datetime created_at:datetime --skip-timestamps
     #
     # You can use any model name you wish. Next, you need to include

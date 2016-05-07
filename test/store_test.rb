@@ -43,6 +43,8 @@ class StoreTest < ActiveSupport::TestCase
 
     instrument "rails_metrics.another"
 
+    wait
+
     assert_equal 5, MockStore.instances.size
     child, parent, request, another, another_request = MockStore.instances
 
@@ -67,6 +69,9 @@ class StoreTest < ActiveSupport::TestCase
       end
     end
 
+    wait
+
+    assert_equal 3, MockStore.instances.size
     child, parent, request = MockStore.instances
     root = RailsMetrics.store.mount_tree(MockStore.instances)
 
@@ -75,7 +80,9 @@ class StoreTest < ActiveSupport::TestCase
     assert_equal "rack.request", request.name
 
     assert root.rack_request?
-    assert [parent], root.children
-    assert [child], parent.children
+    assert_equal 1, root.children.size
+    assert_equal [parent], root.children
+    assert_equal 1, parent.children.size
+    assert_equal [child], parent.children
   end
 end
