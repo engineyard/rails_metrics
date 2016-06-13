@@ -5,6 +5,9 @@ require "rake/testtask"
 require "rdoc/task"
 require "fileutils"
 require File.expand_path("../lib/rails_metrics/version", __FILE__)
+require "bundler"
+
+Bundler::GemHelper.install_tasks
 
 desc "Default: run unit tests"
 task :default => :test
@@ -38,21 +41,3 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include("lib/**/*.rb")
 end
 
-begin
-  require "jeweler"
-  Jeweler::Tasks.new do |s|
-    s.name = "rails_metrics"
-    s.version = RailsMetrics::VERSION
-    s.summary = "Metrics measurement for your app on top of ActiveSupport::Notifications"
-    s.email = "contact@engineyard.com"
-    s.homepage = "http://github.com/engineyard"
-    s.description = "Metrics measurement for your app on top of ActiveSupport::Notifications"
-    s.authors = ["José Valim"]
-    s.files =  FileList["[A-Z]*", "{app,config,lib,public}/**/*"]
-    s.files.exclude("public/javascripts/rails_metrics.js")
-  end
-
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install jeweler"
-end
